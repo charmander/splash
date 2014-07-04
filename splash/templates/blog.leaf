@@ -147,8 +147,9 @@ html
 
 					footer class: "post-info"
 						div
-							time class: "post-date" datetime: "#{date.toISOString()}" title: "#{date.toString()}" pubdate:
-								"#{relativeDate(date)}"
+							a href: "#{clean.rewriteLinkString(post.post_url)}"
+								time class: "post-date" datetime: "#{date.toISOString()}" title: "#{date.toString()}" pubdate:
+									"#{relativeDate(date)}"
 
 						ul class: "post-tags"
 							for tag of post.tags
@@ -156,7 +157,7 @@ html
 
 						div class: "post-stats"
 							if post.note_count
-								a href: "#{clean.rewriteLinkString(post.post_url)}#notes" class: "note-count" "#{s(post.note_count, '%d note', '%d notes')}"
+								span class: "note-count" "#{s(post.note_count, '%d note', '%d notes')}"
 
 						if post.notes
 							ul class: "post-notes"
