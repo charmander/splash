@@ -85,12 +85,6 @@ function rewriteLink(uriInfo) {
 
 	if (httpsDomains.indexOf(hostname) !== -1) {
 		uriInfo.protocol = 'https:';
-	} else if (TUMBLR_DOMAIN.test(hostname) && TUMBLR_COMPATIBLE_PATH.test(pathname)) {
-		uriInfo.pathname = '/blog/' + hostname + pathname;
-		uriInfo.protocol = null;
-		uriInfo.hostname = null;
-		uriInfo.host = null;
-		uriInfo.slashes = false;
 	} else if (TUMBLR_MEDIA.test(hostname)) {
 		uriInfo.protocol = 'https:';
 
@@ -99,6 +93,12 @@ function rewriteLink(uriInfo) {
 		uriInfo.host = null;
 
 		uriInfo.embeddable = true;
+	} else if (TUMBLR_DOMAIN.test(hostname) && TUMBLR_COMPATIBLE_PATH.test(pathname)) {
+		uriInfo.pathname = '/blog/' + hostname + pathname;
+		uriInfo.protocol = null;
+		uriInfo.hostname = null;
+		uriInfo.host = null;
+		uriInfo.slashes = false;
 	} else if (YOUTUBE_THUMBNAIL_DOMAIN.test(hostname)) {
 		uriInfo.protocol = 'https:';
 		uriInfo.embeddable = true;
