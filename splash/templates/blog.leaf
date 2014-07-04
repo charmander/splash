@@ -1,0 +1,183 @@
+doctype
+
+html
+	head
+		meta charset: "utf-8"
+
+		title "#{data.blog.title} · splash"
+
+		link rel: "stylesheet" href: "/stylesheets/blog.css"
+
+		link rel: "index" href: "/blog/#{data.name}/"
+
+	body
+		if data.blog.is_nsfw
+			div id: "nsfw-indicator"
+				span "NSFW"
+
+		header id: "header"
+			h1 id: "title"
+				a href: "/blog/#{data.name}/"
+					"#{data.blog.title}"
+
+			h2 id: "description"
+				!"#{clean.rewriteHTML(data.blog.description)}"
+
+		main id: "posts"
+			for post of data.posts
+				% var date = new Date(post.timestamp * 1000);
+				% var type = post.type;
+
+				article class: "post #{type}-post"
+					header
+						ul class: "post-actions"
+							li a class: "view-source"
+								href: "data:text/plain;charset=utf-8;base64,#{new Buffer(inspect(post, { depth: null })).toString('base64')}"
+								target: "_blank"
+								"View source"
+
+						if post.title
+							h2 class: "post-title"
+								if post.url
+									a href: "#{post.url}" "#{post.title}"
+								else
+									"#{post.title}"
+						elif post.url
+							h2 class: "post-title"
+								a href: "#{post.url}" "#{post.url}"
+
+					if type === 'text'
+						!"#{clean.rewriteHTML(post.body)}"
+					elif type === 'answer'
+						blockquote class: "post-question"
+							header
+								h4
+									strong class: "asker"
+										if post.asking_url
+											a "#{post.asking_name}" href: "#{clean.rewriteLinkString(post.asking_url)}"
+										else
+											"#{post.asking_name}"
+
+									" asked:"
+
+							p "#{post.question}"
+
+						!"#{clean.rewriteHTML(post.answer)}"
+					elif type === 'photo'
+						for photo of post.photos
+							% var photoUrl = photo.original_size.url;
+							% var mediaLink = clean.rewriteLink(url.parse(photoUrl, false, true));
+
+							if mediaLink.embeddable
+								figure class: "post-photo"
+									img
+										src: "#{url.format(mediaLink)}"
+										alt: "#{photo.caption}"
+
+									if photo.caption
+										figcaption
+											"#{photo.caption}"
+							else
+								a
+									href: "#{url.format(mediaLink)}"
+									rel: "noreferrer"
+									"#{photo.caption || 'View image'}"
+
+						div class: "post-caption"
+							!"#{clean.rewriteHTML(post.caption)}"
+					elif type === 'video'
+						% var youtubeMatch = YOUTUBE_PERMALINK.exec(post.permalink_url);
+						% var thumbnailLink = clean.rewriteLink(url.parse(post.thumbnail_url, false, true));
+
+						% if (post.video_url)
+							figure
+								video
+									class: "post-video"
+									src: "#{post.video_url}"
+									type: "video/mp4"
+									preload: "none"
+									controls:
+									poster: "#{post.thumbnail_url}"
+						% else if (youtubeMatch)
+							figure
+								video
+									class: "post-video"
+									src: "/video/#{youtubeMatch[1]}"
+									type: "video/webm"
+									preload: "none"
+									controls:
+
+									if thumbnailLink.embeddable
+										poster: "#{url.format(thumbnailLink)}"
+						% else
+							a
+								href: "#{post.permalink_url}"
+								rel: "noreferrer"
+								"View video"
+
+						div class: "post-caption"
+							!"#{clean.rewriteHTML(post.caption)}"
+					elif type === 'audio'
+						figure
+							#audio
+							#	class: "post-audio"
+							#	src: "#{post.audio_url}"
+							#	type: "audio/ogg"
+							#	controls:
+							!"#{post.embed}" # XXX very bad
+
+							figcaption class: "post-caption"
+								!"#{clean.rewriteHTML(post.caption)}"
+					elif type === 'link'
+						div class: "post-caption"
+							!"#{clean.rewriteHTML(post.description)}"
+					elif type === 'quote'
+						blockquote class: "post-quote"
+							!"#{clean.rewriteHTML(post.text)}"
+
+							footer
+								cite !"— #{clean.rewriteHTML(post.source)}"
+					elif type === 'chat'
+						dl class: "post-dialogue"
+							for retort of post.dialogue
+								dt "#{retort.label}"
+								dd "#{retort.phrase}"
+					else
+						p "Type not ready: #{type}"
+
+					footer class: "post-info"
+						div
+							time class: "post-date" datetime: "#{date.toISOString()}" title: "#{date.toString()}" pubdate:
+								"#{relativeDate(date)}"
+
+						ul class: "post-tags"
+							for tag of post.tags
+								li "##{tag}"
+
+						div class: "post-stats"
+							if post.note_count
+								a href: "#{clean.rewriteLinkString(post.post_url)}#notes" class: "note-count" "#{s(post.note_count, '%d note', '%d notes')}"
+
+						if post.notes
+							ul class: "post-notes"
+								for note of post.notes
+									li
+										if note.post_id
+											a href: "#{clean.rewriteLinkString(note.blog_url)}/post/#{note.post_id}/" "#{note.type}"
+										else
+											"#{note.type}"
+										" from "
+										a href: "#{clean.rewriteLinkString(note.blog_url)}" "#{note.blog_name}"
+
+		% var offset = data.offset;
+		% var limit = data.limit;
+		% var prev = offset > limit ? '?offset=' + offset - limit : offset > 0 ? '' : null;
+		% var next = offset + data.posts.length < data.total_posts ? '?offset=' + (offset + data.posts.length) : null;
+
+		footer id: "footer"
+			nav id: "page-navigation"
+				if prev !== null
+					a class: "prev" rel: "prev" href: "/blog/#{data.name}/#{prev}#posts" accesskey: "p" "← Previous page"
+					" "
+				if next !== null
+					a class: "next" rel: "next" href: "/blog/#{data.name}/#{next}#posts" accesskey: "n" "Next page →"

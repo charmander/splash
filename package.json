@@ -1,0 +1,11 @@
+{
+	"license": "ISC",
+	"dependencies": {
+		"razorleaf": "~2.3.0",
+		"htmlparser2": "~3.7.2",
+		"he": "~0.4.1"
+	},
+	"devDependencies": {
+		"bluebird": "~2.1.3"
+	}
+}

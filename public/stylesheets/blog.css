@@ -1,0 +1,193 @@
+@font-face {
+	src: url('../fonts/bree-serif/bree-serif.woff') format('woff');
+	font-family: Bree Serif;
+	font-style: normal;
+	font-weight: bold;
+}
+
+body {
+	background-color: #2c4762;
+	font-family: sans-serif;
+}
+
+#nsfw-indicator {
+	height: 5em;
+	left: 0;
+	overflow: hidden;
+	position: absolute;
+	right: 0;
+	top: 0;
+	z-index: -1;
+}
+
+#nsfw-indicator > span {
+	background-color: #a0201c;
+	color: white;
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 0.8em;
+	font-weight: bold;
+	padding-bottom: 1em;
+	padding-top: 2em;
+	position: absolute;
+	right: 0;
+	text-align: center;
+	transform: translate(2.5em, -0.7em) rotate(45deg);
+	top: 0;
+	width: 8em;
+}
+
+#header {
+	margin-top: 2em;
+	margin-bottom: 2em;
+}
+
+#title {
+	font-family: Bree Serif, serif;
+	font-size: 2.5em;
+	font-weight: bold;
+	margin: 0.3em 0;
+	text-align: center;
+}
+
+#title a {
+	color: white;
+	text-decoration: none;
+}
+
+#description {
+	color: white;
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 1.2em;
+	font-weight: normal;
+	margin: 0 auto;
+	text-align: center;
+	width: 50rem;
+}
+
+#description a {
+	border-bottom: 0.1rem dotted rgba(255, 255, 255, 0.8);
+	color: white;
+	outline: none;
+	text-decoration: none;
+	transition: border-bottom-color 0.3s ease;
+	white-space: nowrap;
+}
+
+#description a:focus, #description a:hover {
+	border-bottom-color: white;
+}
+
+#posts {
+	display: block;
+	margin: 0 auto;
+	width: 50em;
+}
+
+.post {
+	background-color: white;
+	border-radius: 0.4em;
+	margin: 1.2em 0;
+	padding: 1em;
+	position: relative;
+}
+
+.post-actions {
+	left: 100%;
+	list-style: none;
+	margin: 0;
+	margin-left: 0.6em;
+	padding: 0;
+	position: absolute;
+	top: 0;
+}
+
+.post-actions a {
+	color: white;
+}
+
+.post blockquote {
+	border-left: 0.2em solid #ddd;
+	margin-left: 0.4em;
+	padding-left: 0.8em;
+}
+
+.post .post-question {
+	background-color: #eee;
+	border-left: none;
+	margin: 0;
+	padding: 1em;
+}
+
+.post .post-question h4 {
+	color: #333;
+	font-size: 0.9em;
+	font-weight: normal;
+	margin: 0 0 0.6em 0;
+}
+
+.post .post-question .asker a {
+	color: #333;
+	text-decoration: none;
+}
+
+.post .post-question p {
+	margin: 0;
+}
+
+.post .post-photo img, .post .post-caption img {
+	max-width: 100%;
+}
+
+.post .post-video {
+	display: block;
+	margin: 2em auto;
+}
+
+.post .post-quote {
+	font-size: 1.4em;
+	font-weight: 500;
+}
+
+.post .post-quote > footer {
+	font-family: sans-serif;
+	font-size: 1rem;
+	font-weight: normal;
+	margin-top: 0.6em;
+	text-align: right;
+}
+
+.post .post-tags {
+	color: #666;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.post .post-tags li {
+	display: inline-block;
+	margin-right: 0.7em;
+}
+
+#page-navigation {
+	margin: 0 auto;
+	width: 50em;
+}
+
+#page-navigation a {
+	color: white;
+	font-size: 0.9em;
+	font-weight: bold;
+	opacity: 0.9;
+	outline: none;
+	overflow: hidden;
+	text-decoration: none;
+	transition: opacity 0.3s ease;
+}
+
+#page-navigation a:focus, #page-navigation a:hover {
+	opacity: 1;
+}
+
+#page-navigation [rel=next] {
+	float: right;
+}
