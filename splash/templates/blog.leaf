@@ -39,12 +39,12 @@ html
 						if post.title
 							h2 class: "post-title"
 								if post.url
-									a href: "#{post.url}" "#{post.title}"
+									a href: "#{clean.rewriteLinkString(post.url)}" "#{post.title}"
 								else
 									"#{post.title}"
 						elif post.url
 							h2 class: "post-title"
-								a href: "#{post.url}" "#{post.url}"
+								a href: "#{clean.rewriteLinkString(post.url)}" "#{post.url}"
 
 					if type === 'text'
 						!"#{clean.rewriteHTML(post.body)}"
