@@ -119,12 +119,11 @@ html
 							!"#{clean.rewriteHTML(post.caption)}"
 					elif type === 'audio'
 						figure
-							#audio
-							#	class: "post-audio"
-							#	src: "#{post.audio_url}"
-							#	type: "audio/ogg"
-							#	controls:
-							!"#{post.embed}" # XXX very bad
+							audio
+								class: "post-audio"
+								src: "#{clean.rewriteLinkString(post.audio_url)}"
+								type: "audio/mp3"
+								controls:
 
 							figcaption class: "post-caption"
 								!"#{clean.rewriteHTML(post.caption)}"

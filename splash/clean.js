@@ -56,6 +56,7 @@ var httpsDomains = [
 var TUMBLR_DOMAIN = /^[\w-]+\.tumblr\.com$/i;
 var TUMBLR_COMPATIBLE_PATH = /^\/(?:post\/\d+(?:\/|$))?/;
 var TUMBLR_MEDIA = /^(?:\d+\.)?media\.tumblr\.com$/;
+var TUMBLR_AUDIO = /^\/audio_file\/[^\/]+\/\d+\/(tumblr_[a-zA-Z\d]+)$/;
 var YOUTUBE_THUMBNAIL_DOMAIN = /^[\w-]+\.ytimg\.com$/i;
 
 function isSafeUri(uriInfo) {
@@ -69,6 +70,17 @@ function rewriteLink(uriInfo) {
 
 	var hostname = uriInfo.hostname;
 	var pathname = uriInfo.pathname;
+	var match;
+
+	if (hostname === 'www.tumblr.com' && (match = TUMBLR_AUDIO.exec(pathname))) {
+		uriInfo.protocol = 'https:';
+		uriInfo.hostname = 'a.tumblr.com';
+		uriInfo.host = null;
+		uriInfo.pathname = '/' + match[1] + 'o1.mp3';
+		uriInfo.path = null;
+
+		return uriInfo;
+	}
 
 	if (uriInfo.protocol === 'https:') {
 		if (TUMBLR_MEDIA.test(hostname) || YOUTUBE_THUMBNAIL_DOMAIN.test(hostname)) {
