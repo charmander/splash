@@ -94,13 +94,9 @@ function describe(described, description) {
 		var promises = [];
 
 		description(function it(behaviour, test) {
-			var p;
-
-			try {
-				p = Promise.resolve(test()).catch(id);
-			} catch (error) {
-				p = Promise.resolve(error);
-			}
+			var p = new Promise(function (resolve) {
+				resolve(test());
+			}).catch(id);
 
 			p.name = behaviour;
 			promises.push(p);
