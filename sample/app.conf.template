@@ -28,7 +28,7 @@ server {
 
 		# Force passive mixed content blocking on in all supporting browsers, effectively disarm any oversights in sanitizing
 		# (not that Splash has any authentication, but this at least makes tracking impossible), and discourage use of anything inline
-		add_header Content-Security-Policy "default-src 'self'; img-src 'self' https:; media-src 'self' https://*.tumblr.com";
+		add_header Content-Security-Policy "default-src 'self'; img-src 'self' https:; media-src 'self' https:;";
 	}
 
 	location /stylesheets {}
