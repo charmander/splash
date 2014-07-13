@@ -41,6 +41,14 @@ body {
 	margin-bottom: 2em;
 }
 
+#avatar {
+	border-radius: 0.1em;
+	left: 0.2em;
+	position: fixed;
+	top: 0.7em;
+	z-index: -1;
+}
+
 #title {
 	font-family: Bree Serif, serif;
 	font-size: 2.5em;
