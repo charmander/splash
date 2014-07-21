@@ -173,7 +173,7 @@ html
 
 		% var offset = data.offset;
 		% var limit = data.limit;
-		% var prev = offset > limit ? '?offset=' + offset - limit : offset > 0 ? '' : null;
+		% var prev = offset > limit ? '?offset=' + (offset - limit) : offset > 0 ? '' : null;
 		% var next = offset + data.posts.length < data.total_posts ? '?offset=' + (offset + data.posts.length) : null;
 
 		footer id: "footer"
