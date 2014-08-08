@@ -89,7 +89,7 @@ html
 							!"#{clean.rewriteHTML(post.caption)}"
 					elif type === 'video'
 						% var youtubeMatch = YOUTUBE_PERMALINK.exec(post.permalink_url);
-						% var thumbnailLink = clean.rewriteLink(url.parse(post.thumbnail_url, false, true));
+						% var thumbnailLink = post.thumbnail_url && clean.rewriteLink(url.parse(post.thumbnail_url, false, true));
 
 						% if (post.video_url)
 							figure
@@ -111,11 +111,14 @@ html
 
 									if thumbnailLink.embeddable
 										poster: "#{url.format(thumbnailLink)}"
-						% else
+						% else if (post.permalink_url)
 							a
 								href: "#{post.permalink_url}"
 								rel: "noreferrer"
 								"View video"
+						% else
+							p class: "error"
+								"Video unavailable."
 
 						div class: "post-caption"
 							!"#{clean.rewriteHTML(post.caption)}"
