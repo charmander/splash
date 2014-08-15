@@ -6,6 +6,7 @@ var http = require('http');
 var https = require('https');
 var match_ = require('./match');
 var templates = require('./templates');
+var qs = require('querystring');
 
 var match = match_.match;
 var bind = match_.bind;
@@ -58,8 +59,13 @@ function viewPost(params, request, response) {
 function viewBlog(params, request, response) {
 	var offset = request.query.offset | 0;
 
+	var query = {
+		offset: offset,
+		api_key: consumerKey
+	};
+
 	https.get(
-		util.format('https://api.tumblr.com/v2/blog/%s/posts?offset=%d&api_key=%s', params.name, offset, consumerKey),
+		util.format('https://api.tumblr.com/v2/blog/%s/posts?%s', params.name, qs.stringify(query)),
 		function (apiResponse) {
 			var bodyParts = [];
 			var bodySize = 0;
@@ -114,7 +120,7 @@ var routes = [
 
 function serve(request, response) {
 	var uri = URL.parse(request.url, true);
-	var parts = [request.method].concat(uri.pathname.split('/').slice(1));
+	var parts = [request.method].concat(uri.pathname.split('/').slice(1).map(decodeURIComponent));
 
 	request.query = uri.query;
 
