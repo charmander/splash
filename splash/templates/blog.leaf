@@ -4,7 +4,7 @@ html
 	head
 		meta charset: "utf-8"
 
-		title "#{data.blog.title} · splash"
+		title "#{data.blog.title || data.name} · splash"
 
 		link rel: "stylesheet" href: "/stylesheets/blog.css"
 
@@ -20,7 +20,7 @@ html
 				a href: "/blog/#{data.name}/"
 					img id: "avatar" src: "https://api.tumblr.com/v2/blog/#{data.name}/avatar" alt: "#{data.name}’s avatar"
 
-					" #{data.blog.title}"
+					" #{data.blog.title || data.name}"
 
 			h2 id: "description"
 				!"#{clean.rewriteHTML(data.blog.description)}"
