@@ -27,8 +27,8 @@ html
 
 		main id: "posts"
 			for post of data.posts
-				% var date = new Date(post.timestamp * 1000);
-				% var type = post.type;
+				% const date = new Date(post.timestamp * 1000);
+				% const type = post.type;
 
 				article class: "post #{type}-post"
 					header
@@ -67,14 +67,17 @@ html
 						!"#{clean.rewriteHTML(post.answer)}"
 					elif type === 'photo'
 						for photo of post.photos
-							% var photoUrl = photo.original_size.url;
-							% var mediaLink = clean.rewriteLink(url.parse(photoUrl, false, true));
+							% const photoUrl = photo.original_size.url;
+							% const mediaLink = clean.rewriteLink(url.parse(photoUrl, false, true));
+							% const photoInfo = photo.alt_sizes[0];
 
 							if mediaLink.embeddable
 								figure class: "post-photo"
 									img
 										src: "#{url.format(mediaLink)}"
 										alt: "#{photo.caption}"
+										width: "#{photoInfo.width}"
+										height: "#{photoInfo.height}"
 
 									if photo.caption
 										figcaption
@@ -88,8 +91,8 @@ html
 						div class: "post-caption"
 							!"#{clean.rewriteHTML(post.caption)}"
 					elif type === 'video'
-						% var youtubeMatch = YOUTUBE_PERMALINK.exec(post.permalink_url);
-						% var thumbnailLink = post.thumbnail_url && clean.rewriteLink(url.parse(post.thumbnail_url, false, true));
+						% const youtubeMatch = YOUTUBE_PERMALINK.exec(post.permalink_url);
+						% const thumbnailLink = post.thumbnail_url && clean.rewriteLink(url.parse(post.thumbnail_url, false, true));
 
 						% if (post.video_url)
 							figure
@@ -174,15 +177,23 @@ html
 										" from "
 										a href: "#{clean.rewriteLinkString(note.blog_url)}" "#{note.blog_name}"
 
-		% var offset = data.offset;
-		% var limit = data.limit;
-		% var prev = offset > limit ? '?offset=' + (offset - limit) : offset > 0 ? '' : null;
-		% var next = offset + data.posts.length < data.total_posts ? '?offset=' + (offset + data.posts.length) : null;
+		% const offset = data.offset;
+		% const limit = data.limit;
+		% const prev = offset > limit ? offset - limit : offset > 0 ? '' : null;
+		% const next = offset + data.posts.length < data.total_posts ? offset + data.posts.length : null;
 
 		footer id: "footer"
 			nav id: "page-navigation"
 				if prev !== null
-					a class: "prev" rel: "prev" href: "/blog/#{data.name}/#{prev}#posts" accesskey: "p" "← Previous page"
+					a
+						class: "prev"
+						rel: "prev"
+						href: "#{url.format(update(data.pageUri, { search: null, query: { offset: prev }, hash: '#posts' }))}"
+						accesskey: "p" "← Previous page"
 					" "
 				if next !== null
-					a class: "next" rel: "next" href: "/blog/#{data.name}/#{next}#posts" accesskey: "n" "Next page →"
+					a
+						class: "next"
+						rel: "next"
+						href: "#{url.format(update(data.pageUri, { search: null, query: { offset: next }, hash: '#posts' }))}"
+						accesskey: "n" "Next page →"

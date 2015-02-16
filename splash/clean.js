@@ -1,11 +1,11 @@
 'use strict';
 
-var url = require('url');
-var htmlparser = require('htmlparser2');
-var he = require('he');
-var templateUtilities = require('razorleaf/utilities');
+const url = require('url');
+const htmlparser = require('htmlparser2');
+const he = require('he');
+const templateUtilities = require('razorleaf/utilities');
 
-var safeElements = [
+const safeElements = [
 	'section', 'nav', 'article', 'aside',
 	'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
 	'header', 'footer',
@@ -21,7 +21,7 @@ var safeElements = [
 	'table', 'caption', 'tbody', 'thead', 'tfoot', 'tr', 'td', 'th'
 ];
 
-var safeAttributes = {
+const safeAttributes = {
 	_global: ['title', 'dir', 'lang'],
 	data: ['value'],
 	img: ['alt', 'longdesc'],
@@ -31,7 +31,7 @@ var safeAttributes = {
 };
 
 // Adapted from https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml
-var safeProtocols = [
+const safeProtocols = [
 	// Common
 	null, 'ftp:', 'http:', 'https:', 'mailto:', 'sftp:', 'shttp:', 'ssh:',
 	// SCM
@@ -45,7 +45,7 @@ var safeProtocols = [
 	'telnet:', 'tv:', 'view-source:', 'ymsgr:', 'finger:', 'feed:'
 ];
 
-var httpsDomains = [
+const httpsDomains = [
 	'www.tumblr.com',
 	'api.tumblr.com',
 	'tumblr.com',
@@ -53,11 +53,11 @@ var httpsDomains = [
 	'i.imgur.com'
 ];
 
-var TUMBLR_DOMAIN = /^[\w-]+\.tumblr\.com$/i;
-var TUMBLR_COMPATIBLE_PATH = /^\/(?:post\/\d+(?:\/|$))?/;
-var TUMBLR_MEDIA = /^(?:\d+\.)?media\.tumblr\.com$/;
-var TUMBLR_AUDIO = /^\/audio_file\/[^\/]+\/\d+\/(tumblr_[a-zA-Z\d]+)$/;
-var YOUTUBE_THUMBNAIL_DOMAIN = /^[\w-]+\.ytimg\.com$/i;
+const TUMBLR_DOMAIN = /^[\w-]+\.tumblr\.com$/i;
+const TUMBLR_COMPATIBLE_PATH = /^\/(?:post\/\d+(?:\/|$))?/;
+const TUMBLR_MEDIA = /^(?:\d+\.)?media\.tumblr\.com$/;
+const TUMBLR_AUDIO = /^\/audio_file\/[^\/]+\/\d+\/(tumblr_[a-zA-Z\d]+)$/;
+const YOUTUBE_THUMBNAIL_DOMAIN = /^[\w-]+\.ytimg\.com$/i;
 
 function isSafeUri(uriInfo) {
 	return safeProtocols.indexOf(uriInfo.protocol) !== -1;
@@ -68,9 +68,9 @@ function rewriteLink(uriInfo) {
 		return uriInfo;
 	}
 
-	var hostname = uriInfo.hostname;
-	var pathname = uriInfo.pathname;
-	var match;
+	const hostname = uriInfo.hostname;
+	const pathname = uriInfo.pathname;
+	let match;
 
 	if (hostname === 'www.tumblr.com' && (match = TUMBLR_AUDIO.exec(pathname))) {
 		uriInfo.protocol = 'https:';
@@ -99,11 +99,6 @@ function rewriteLink(uriInfo) {
 		uriInfo.protocol = 'https:';
 	} else if (TUMBLR_MEDIA.test(hostname)) {
 		uriInfo.protocol = 'https:';
-
-		// Some servers (37, for example) don’t have a proper certificate yet
-		uriInfo.hostname = '1.media.tumblr.com';
-		uriInfo.host = null;
-
 		uriInfo.embeddable = true;
 	} else if (TUMBLR_DOMAIN.test(hostname) && TUMBLR_COMPATIBLE_PATH.test(pathname)) {
 		uriInfo.pathname = '/blog/' + hostname + pathname;
@@ -125,10 +120,10 @@ function rewriteLinkString(uri) {
 
 function cleanAttributes(name, attributes) {
 	return Object.keys(attributes).map(function (attribute) {
-		var value = attributes[attribute];
+		const value = attributes[attribute];
 
 		if (name === 'a' && attribute === 'href') {
-			var uriInfo = url.parse(value, false, true);
+			const uriInfo = url.parse(value, false, true);
 
 			if (!isSafeUri(uriInfo)) {
 				return;
@@ -137,7 +132,7 @@ function cleanAttributes(name, attributes) {
 			return ' href="' + templateUtilities.escapeAttributeValue(url.format(rewriteLink(uriInfo))) + '"';
 		}
 
-		var safeElementAttributes = safeAttributes[name];
+		const safeElementAttributes = safeAttributes[name];
 
 		if (safeAttributes._global.indexOf(attribute) === -1 && (!safeElementAttributes || safeElementAttributes.indexOf(attribute) === -1)) {
 			return;
@@ -148,13 +143,13 @@ function cleanAttributes(name, attributes) {
 }
 
 function rewriteHTML(html) {
-	var output = '';
-	var open = [];
+	let output = '';
+	const open = [];
 
-	var parser = new htmlparser.Parser({
+	const parser = new htmlparser.Parser({
 		onopentag: function (name, attributes) {
 			Object.keys(attributes).forEach(function (key) {
-				var value = attributes[key];
+				const value = attributes[key];
 
 				if (value) {
 					attributes[key] = he.decode(value);
@@ -163,15 +158,15 @@ function rewriteHTML(html) {
 
 			// TODO: srcset
 			if (name === 'img' && attributes.src) {
-				var uriInfo = url.parse(attributes.src, false, true);
+				const uriInfo = url.parse(attributes.src, false, true);
 
 				if (isSafeUri(uriInfo)) {
-					var rewrittenUri = rewriteLink(uriInfo);
+					const rewrittenUri = rewriteLink(uriInfo);
 
 					if (rewrittenUri.embeddable) {
 						output += '<img src="' + templateUtilities.escapeAttributeValue(url.format(rewrittenUri)) + '"' + cleanAttributes('img', attributes) + '>';
 					} else {
-						var linkable = open.indexOf('a') === -1;
+						const linkable = open.indexOf('a') === -1;
 
 						if (linkable) {
 							output += '<a href="' + templateUtilities.escapeAttributeValue(url.format(rewrittenUri)) + '">';

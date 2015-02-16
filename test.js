@@ -1,9 +1,9 @@
 'use strict';
 
-var Promise = require('bluebird');
-var assert = require('assert');
-var rewriteHTML = require('./splash/clean').rewriteHTML;
-var descriptions = [];
+const Bluebird = require('bluebird');
+const assert = require('assert');
+const rewriteHTML = require('./splash/clean').rewriteHTML;
+const descriptions = [];
 
 describe('HTML rewriter', function (it) {
 	it('should retain safe HTML', function () {
@@ -91,10 +91,10 @@ function id(x) {
 
 function describe(described, description) {
 	descriptions.push(function () {
-		var promises = [];
+		const promises = [];
 
 		description(function it(behaviour, test) {
-			var p = new Promise(function (resolve) {
+			const p = new Bluebird(function (resolve) {
 				resolve(test());
 			}).catch(id);
 
@@ -102,9 +102,9 @@ function describe(described, description) {
 			promises.push(p);
 		});
 
-		return Promise.all(promises).then(function (results) {
+		return Bluebird.all(promises).then(function (results) {
 			return results.reduce(function (allPassing, result, i) {
-				var p = promises[i];
+				const p = promises[i];
 
 				if (result instanceof Error) {
 					console.log('\x1b[31m✘\x1b[0m \x1b[1m%s %s\x1b[0m failed\n%s', described, p.name, result.stack);
@@ -124,6 +124,6 @@ descriptions.reduce(function (first, second) {
 			return allPassed && passed;
 		});
 	});
-}, Promise.resolve(true)).done(function (allPassed) {
+}, Bluebird.resolve(true)).done(function (allPassed) {
 	process.exit(!allPassed);
 });

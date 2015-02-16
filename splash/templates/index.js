@@ -1,11 +1,11 @@
 'use strict';
 
-var util = require('util');
-var url = require('url');
-var razorleaf = require('razorleaf');
-var clean = require('../clean');
+const util = require('util');
+const url = require('url');
+const razorleaf = require('razorleaf');
+const clean = require('../clean');
 
-var templateLoader = new razorleaf.DirectoryLoader(__dirname, {
+const templateLoader = new razorleaf.DirectoryLoader(__dirname, {
 	globals: {
 		Buffer: Buffer,
 		url: url,
@@ -15,9 +15,9 @@ var templateLoader = new razorleaf.DirectoryLoader(__dirname, {
 			return util.format(quantity === 1 ? singular : plural, quantity);
 		},
 		relativeDate: function relativeDate(date) {
-			var d = new Date() - date;
-			var scale;
-			var unit;
+			const d = new Date() - date;
+			let scale;
+			let unit;
 
 			if (d >= 1000 * 60 * 60 * 24 * 365) {
 				scale = 1000 * 60 * 60 * 24 * 365;
@@ -42,9 +42,22 @@ var templateLoader = new razorleaf.DirectoryLoader(__dirname, {
 				unit = 'millisecond';
 			}
 
-			var count = Math.round(d / scale);
+			const count = Math.round(d / scale);
 
 			return count + ' ' + (count === 1 ? unit : unit + 's') + ' ago';
+		},
+		update: function update(obj, changes) {
+			var result = {};
+
+			for (let k of Object.keys(obj)) {
+				result[k] = obj[k];
+			}
+
+			for (let k of Object.keys(changes)) {
+				result[k] = changes[k];
+			}
+
+			return result;
 		},
 		YOUTUBE_PERMALINK: /^https?:\/\/www\.youtube\.com\/watch\?v=([\w-]{11})$/
 	}

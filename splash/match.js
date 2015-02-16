@@ -1,9 +1,9 @@
 'use strict';
 
-var slice = Array.prototype.slice;
+const slice = Array.prototype.slice;
 
 function cons(head, tail) {
-	var result = slice.call(tail);
+	const result = slice.call(tail);
 	result.unshift(head);
 	return result;
 }
@@ -19,14 +19,14 @@ function match(pattern, handler) {
 				return false;
 			}
 
-			var bound = {};
+			const bound = {};
 
-			for (var i = 0; i < pattern.length; i++) {
+			for (let i = 0; i < pattern.length; i++) {
 				if (i >= value.length) {
 					return false;
 				}
 
-				var part = pattern[i];
+				const part = pattern[i];
 
 				if (part instanceof Binding) {
 					bound[part.name] = value[i];

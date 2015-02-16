@@ -1,132 +1,134 @@
+#!/usr/bin/env iojs
+
 'use strict';
 
-var URL = require('url');
-var util = require('util');
-var http = require('http');
-var https = require('https');
-var match_ = require('./match');
-var templates = require('./templates');
-var qs = require('querystring');
+const Bluebird = require('bluebird');
+const http = require('http');
+const https = require('https');
+const match_ = require('./match'), match = match_.match, bind = match_.bind;
+const URL = require('url');
+const util = require('util');
+const qs = require('querystring');
 
-var match = match_.match;
-var bind = match_.bind;
+const templates = require('./templates');
+const config = require('../config');
+const consumerKey = config.api.consumer_key;
 
-var config = require('../config');
-var consumerKey = config.api.consumer_key;
+function getAsync(url) {
+	return new Bluebird(function (resolve) {
+		https.get(url, resolve);
+	});
+}
 
-function viewPost(params, request, response) {
-	https.get(
-		util.format('https://api.tumblr.com/v2/blog/%s/posts?id=%s&notes_info=true&api_key=%s', params.name, params.id, consumerKey),
-		function (apiResponse) {
-			var bodyParts = [];
-			var bodySize = 0;
+function getJSON(url) {
+	return getAsync(url).then(function (response) {
+		const bodyParts = [];
 
-			apiResponse.on('data', function (part) {
-				bodyParts.push(part);
-				bodySize += part.length;
-			});
+		response.on('data', function (part) {
+			bodyParts.push(part);
+		});
 
-			apiResponse.on('end', function () {
-				var body = Buffer.concat(bodyParts, bodySize).toString('utf8');
-				var data;
-
-				try {
-					data = JSON.parse(body);
-				} catch (e) {
-					response.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
-					response.end('Failed to decode response.\n\n' + body);
-					console.error(e.stack);
-					return;
-				}
+		return new Bluebird(function (resolve, reject) {
+			response.on('end', function () {
+				const body = Buffer.concat(bodyParts).toString('utf8');
+				const data = JSON.parse(body);
 
 				if (!data.meta || data.meta.status !== 200) {
-					response.writeHead(502, { 'Content-Type': 'text/plain' });
-					response.end('The Tumblr API returned an error.');
-					console.error(data);
-					return;
+					reject(data);
+				} else {
+					resolve(data);
 				}
-
-				var apiResponse = data.response;
-				apiResponse.name = params.name;
-
-				response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-				response.end(templates.blog(apiResponse));
 			});
-		}
+
+			response.on('error', reject);
+		});
+	});
+}
+
+function viewPost(params, request, response) {
+	const url = util.format(
+		'https://api.tumblr.com/v2/blog/%s/posts?id=%s&notes_info=true&api_key=%s',
+		params.name, params.id, consumerKey
 	);
+
+	function success(data) {
+		const apiResponse = data.response;
+		apiResponse.name = params.name;
+		apiResponse.pageUri = request.uri;
+
+		response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+		response.end(templates.blog(apiResponse));
+	}
+
+	function failure(error) {
+		response.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+		response.end('The Tumblr API request failed.');
+		console.error(error);
+	}
+
+	getJSON(url).done(success, failure);
 }
 
 function viewBlog(params, request, response) {
-	var offset = request.query.offset | 0;
+	const offset = request.query.offset | 0;
 
-	var query = {
+	const query = {
 		offset: offset,
 		api_key: consumerKey
 	};
 
-	https.get(
-		util.format('https://api.tumblr.com/v2/blog/%s/posts?%s', params.name, qs.stringify(query)),
-		function (apiResponse) {
-			var bodyParts = [];
-			var bodySize = 0;
+	if (params.tag) {
+		query.tag = params.tag;
+	}
 
-			apiResponse.on('data', function (part) {
-				bodyParts.push(part);
-				bodySize += part.length;
-			});
-
-			apiResponse.on('end', function () {
-				var body = Buffer.concat(bodyParts, bodySize).toString('utf8');
-				var data;
-
-				try {
-					data = JSON.parse(body);
-				} catch (e) {
-					response.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
-					response.end('Failed to decode response.\n\n' + body);
-					console.error(e.stack);
-					return;
-				}
-
-				if (!data.meta || data.meta.status !== 200) {
-					response.writeHead(502, { 'Content-Type': 'text/plain' });
-					response.end('The Tumblr API returned an error.');
-					console.error(data);
-					return;
-				}
-
-				var apiResponse = data.response;
-				apiResponse.limit = 20;
-				apiResponse.offset = offset;
-				apiResponse.name = params.name;
-
-				response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-				response.end(templates.blog(apiResponse));
-			});
-		}
+	const url = util.format(
+		'https://api.tumblr.com/v2/blog/%s/posts?%s',
+		params.name, qs.stringify(query)
 	);
+
+	function success(data) {
+		const apiResponse = data.response;
+		apiResponse.limit = 20;
+		apiResponse.offset = offset;
+		apiResponse.name = params.name;
+		apiResponse.pageUri = request.uri;
+
+		response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+		response.end(templates.blog(apiResponse));
+	}
+
+	function failure(error) {
+		response.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+		response.end('The Tumblr API request failed.');
+		console.error(error);
+	}
+
+	getJSON(url).done(success, failure);
 }
 
-var routes = [
+function proxyVideo(params, request, response) {
+	response.writeHead(500, { 'Content-Type': 'text/plain' });
+	response.end('Video proxying has been temporarily removed.');
+}
+
+const routes = [
 	match(['GET', 'blog', bind('name')], viewBlog),
 	match(['GET', 'blog', bind('name'), ''], viewBlog),
+	match(['GET', 'blog', bind('name'), 'tagged', bind('tag')], viewBlog),
 	match(['GET', 'blog', bind('name'), 'post', bind('id'), bind('slug')], viewPost),
 	match(['GET', 'blog', bind('name'), 'post', bind('id')], viewPost),
-	match(['GET', 'video', bind('id')], function proxyVideo(params, request, response) {
-		response.writeHead(501, { 'Content-Type': 'text/plain' });
-		response.end('Video proxying has been temporarily removed.');
-	})
+	match(['GET', 'video', bind('id')], proxyVideo),
 ];
 
 function serve(request, response) {
-	var uri = URL.parse(request.url, true);
-	var parts = [request.method].concat(uri.pathname.split('/').slice(1).map(decodeURIComponent));
+	const uri = URL.parse(request.url, true);
+	const parts = [request.method].concat(uri.pathname.split('/').slice(1).map(decodeURIComponent));
 
+	request.uri = uri;
 	request.query = uri.query;
 
-	for (var i = 0; i < routes.length; i++) {
-		var route = routes[i];
-		var handler = route(parts);
+	for (let route of routes) {
+		const handler = route(parts);
 
 		if (handler) {
 			handler(request, response);
@@ -138,7 +140,7 @@ function serve(request, response) {
 	response.end('Not found.');
 }
 
-var server = http.createServer(serve);
+const server = http.createServer(serve);
 server.listen('/tmp/splash.sock');
 
 process.once('SIGINT', function () {
