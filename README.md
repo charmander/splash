@@ -26,8 +26,6 @@ Add a hosts entry for `::1 splash`, and visit
 TODO
 ----
 
- - `/tagged/`
-
  - Private posts (the v2 API doesn’t seem to support these, but there are a few
    ways around that)
 
