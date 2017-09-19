@@ -34,7 +34,7 @@ html
 					header
 						ul class: "post-actions"
 							li a class: "view-source"
-								href: "data:text/plain;charset=utf-8;base64,#{new Buffer(inspect(post, { depth: null })).toString('base64')}"
+								href: "data:text/plain;charset=utf-8,#{encodeURIComponent(inspect(post, { depth: null }))}"
 								target: "_blank"
 								"View source"
 
