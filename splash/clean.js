@@ -3,6 +3,7 @@
 const url = require('url');
 const htmlparser = require('htmlparser2');
 const he = require('he');
+const { Markup } = require('razorleaf');
 const templateUtilities = require('razorleaf/utilities');
 
 const safeElements = [
@@ -212,7 +213,7 @@ function rewriteHTML(html) {
 
 	parser.end(html);
 
-	return output;
+	return Markup.unsafe(output);
 }
 
 exports.rewriteLink = rewriteLink;

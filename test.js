@@ -2,8 +2,12 @@
 
 const Bluebird = require('bluebird');
 const assert = require('assert');
-const rewriteHTML = require('./splash/clean').rewriteHTML;
+
+const clean = require('./splash/clean');
 const descriptions = [];
+
+const rewriteHTML = html =>
+	clean.rewriteHTML(html)._html;
 
 describe('HTML rewriter', function (it) {
 	it('should retain safe HTML', function () {
@@ -25,7 +29,7 @@ describe('HTML rewriter', function (it) {
 	});
 
 	it('should always produce valid, consistent HTML', function () {
-		assert.strictEqual(rewriteHTML('>>> <<< & <blockquote><b>1 <i>2</b> 3</i> 4</u>'), '&gt;&gt;&gt; &lt;&lt;&lt; &amp; <blockquote><b>1 <i>2</i></b> 3 4</blockquote>');
+		assert.strictEqual(rewriteHTML('>>> <<< & <blockquote><b>1 <i>2</b> 3</i> 4</u>'), '>>> &lt;&lt;&lt; &amp; <blockquote><b>1 <i>2</i></b> 3 4</blockquote>');
 		assert.strictEqual(rewriteHTML('<b title=\'title\'></b> <i title=title></i>'), '<b title="title"></b> <i title="title"></i>');
 		assert.strictEqual(rewriteHTML('<b title=\'title\'></b> <i title=title></i>'), '<b title="title"></b> <i title="title"></i>');
 	});

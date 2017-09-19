@@ -2,10 +2,10 @@
 
 const util = require('util');
 const url = require('url');
-const razorleaf = require('razorleaf');
+const { DirectoryLoader } = require('razorleaf/directory-loader');
 const clean = require('../clean');
 
-const templateLoader = new razorleaf.DirectoryLoader(__dirname, {
+const templateLoader = new DirectoryLoader(__dirname, {
 	globals: {
 		Buffer: Buffer,
 		url: url,
