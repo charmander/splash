@@ -18,7 +18,7 @@ It should serve static files from splash’s `public/` directory and proxy from
 `/tmp/splash.sock`.
 
 Add a hosts entry for `::1 splash`, and visit
-<http://splash/blog/staff.tumblr.com>.
+<http://splash/blog/staff/>.
 
 
 TODO
