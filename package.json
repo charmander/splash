@@ -14,7 +14,7 @@
 		"url": "https://github.com/charmander/splash"
 	},
 	"dependencies": {
-		"bluebird": "3.5.0",
+		"bluebird": "3.5.1",
 		"razorleaf": "5.0.2",
 		"htmlparser2": "3.9.2",
 		"he": "1.1.1"
