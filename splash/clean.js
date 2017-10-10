@@ -64,6 +64,11 @@ function isSafeUri(uriInfo) {
 	return safeProtocols.indexOf(uriInfo.protocol) !== -1;
 }
 
+const stripSuffix = (text, suffix) =>
+	suffix !== '' && text.endsWith(suffix) ?
+		text.slice(0, -suffix.length) :
+		text;
+
 function rewriteLink(uriInfo) {
 	if (uriInfo.port !== null) {
 		return uriInfo;
@@ -83,16 +88,8 @@ function rewriteLink(uriInfo) {
 		return uriInfo;
 	}
 
-	if (uriInfo.protocol === 'https:') {
-		if (TUMBLR_MEDIA.test(hostname) || YOUTUBE_THUMBNAIL_DOMAIN.test(hostname)) {
-			uriInfo.embeddable = true;
-		}
-
+	if (uriInfo.protocol !== 'http:' && uriInfo.protocol !== 'https:') {
 		// TODO: blog-relative paths where uriInfo.protocol is null
-		return uriInfo;
-	}
-
-	if (uriInfo.protocol !== 'http:') {
 		return uriInfo;
 	}
 
@@ -102,7 +99,7 @@ function rewriteLink(uriInfo) {
 		uriInfo.protocol = 'https:';
 		uriInfo.embeddable = true;
 	} else if (TUMBLR_DOMAIN.test(hostname) && TUMBLR_COMPATIBLE_PATH.test(pathname)) {
-		uriInfo.pathname = '/blog/' + hostname + pathname;
+		uriInfo.pathname = '/blog/' + stripSuffix(hostname, '.tumblr.com') + pathname;
 		uriInfo.protocol = null;
 		uriInfo.hostname = null;
 		uriInfo.host = null;

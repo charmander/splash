@@ -70,13 +70,13 @@ describe('HTML rewriter', function (it) {
 	it('should rewrite Tumblr blog links to Splash links', function () {
 		assert.strictEqual(
 			rewriteHTML('<a href="http://staff.tumblr.com/">External blog link</a>'),
-			'<a href="/blog/staff.tumblr.com/">External blog link</a>');
+			'<a href="/blog/staff/">External blog link</a>');
 		assert.strictEqual(
 			rewriteHTML('<a href="http://staff.tumblr.com/post/69608789310">External post link</a>'),
-			'<a href="/blog/staff.tumblr.com/post/69608789310">External post link</a>');
+			'<a href="/blog/staff/post/69608789310">External post link</a>');
 		assert.strictEqual(
 			rewriteHTML('<a href="http://staff.tumblr.com/post/69608789310/love-the-new-search-but-wish-it-looked-more-like">External post link with slug</a>'),
-			'<a href="/blog/staff.tumblr.com/post/69608789310/love-the-new-search-but-wish-it-looked-more-like">External post link with slug</a>');
+			'<a href="/blog/staff/post/69608789310/love-the-new-search-but-wish-it-looked-more-like">External post link with slug</a>');
 		assert.strictEqual(
 			rewriteHTML('<a href="http://www.tumblr.com/">Tumblr link</a>'),
 			'<a href="https://www.tumblr.com/">Tumblr link</a>');
