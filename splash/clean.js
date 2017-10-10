@@ -97,6 +97,8 @@ function rewriteLink(uriInfo) {
 		uriInfo.protocol = 'https:';
 	} else if (TUMBLR_MEDIA.test(hostname)) {
 		uriInfo.protocol = 'https:';
+		uriInfo.hostname = 'media.tumblr.com';
+		uriInfo.host = null;
 		uriInfo.embeddable = true;
 	} else if (TUMBLR_DOMAIN.test(hostname) && TUMBLR_COMPATIBLE_PATH.test(pathname)) {
 		uriInfo.pathname = '/blog/' + stripSuffix(hostname, '.tumblr.com') + pathname;
