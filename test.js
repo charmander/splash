@@ -37,13 +37,13 @@ describe('HTML rewriter', function (it) {
 	it('should secure embedded, recognized content when possible', function () {
 		assert.strictEqual(
 			rewriteHTML('<img src="http://37.media.tumblr.com/foo.png" alt="Interesting photo">'),
-			'<img src="https://media.tumblr.com/foo.png" alt="Interesting photo">');
+			'<img src="https://1.media.tumblr.com/foo.png" alt="Interesting photo">');
 		assert.strictEqual(
 			rewriteHTML('<img src="http://media.tumblr.com/foo.png" alt="Interesting photo">'),
-			'<img src="https://media.tumblr.com/foo.png" alt="Interesting photo">');
+			'<img src="https://1.media.tumblr.com/foo.png" alt="Interesting photo">');
 		assert.strictEqual(
 			rewriteHTML('<img src="https://41.media.tumblr.com/foo.png" alt="Interesting photo">'),
-			'<img src="https://media.tumblr.com/foo.png" alt="Interesting photo">');
+			'<img src="https://41.media.tumblr.com/foo.png" alt="Interesting photo">');
 		assert.strictEqual(
 			rewriteHTML('<img src="http://i1.ytimg.com/" alt="YouTube thumbnail">'),
 			'<img src="https://i1.ytimg.com/" alt="YouTube thumbnail">');
