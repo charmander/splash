@@ -1,22 +1,9 @@
 {
-	"name": "splash",
-	"version": "0.2.1",
-	"description": "A Tumblr web client.",
-	"keywords": ["tumblr"],
-	"bugs": {
-		"url": "https://github.com/charmander/splash/issues"
-	},
-	"license": "ISC",
-	"files": ["config.json", "splash/", "public/"],
-	"bin": "splash/index.js",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/charmander/splash"
-	},
 	"dependencies": {
 		"bluebird": "3.5.1",
-		"razorleaf": "5.0.2",
+		"razorleaf": "5.0.4",
 		"htmlparser2": "3.9.2",
 		"he": "1.1.1"
-	}
+	},
+	"private": true
 }

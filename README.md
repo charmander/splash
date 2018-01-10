@@ -9,8 +9,10 @@ Installation
 ------------
 
 ```shellsession
-$ npm install -g splash
-$ splash
+~$ git clone https://github.com/charmander/splash
+~$ cd splash
+~/splash$ npm install --no-save
+~/splash$ node splash
 ```
 
 You will need some kind of reverse proxy – [Nginx][], for example.
