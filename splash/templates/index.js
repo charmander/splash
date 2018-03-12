@@ -59,7 +59,6 @@ const templateLoader = new DirectoryLoader(__dirname, {
 
 			return result;
 		},
-		YOUTUBE_PERMALINK: /^https?:\/\/www\.youtube\.com\/watch\?v=([\w-]{11})$/
 	}
 });
 

@@ -106,18 +106,12 @@ function viewBlog(params, request, response) {
 	getJSON(url).done(success, failure);
 }
 
-function proxyVideo(params, request, response) {
-	response.writeHead(500, { 'Content-Type': 'text/plain' });
-	response.end('Video proxying has been temporarily removed.');
-}
-
 const routes = [
 	match(['GET', 'blog', bind('name')], viewBlog),
 	match(['GET', 'blog', bind('name'), ''], viewBlog),
 	match(['GET', 'blog', bind('name'), 'tagged', bind('tag')], viewBlog),
 	match(['GET', 'blog', bind('name'), 'post', bind('id'), bind('slug')], viewPost),
 	match(['GET', 'blog', bind('name'), 'post', bind('id')], viewPost),
-	match(['GET', 'video', bind('id')], proxyVideo),
 ];
 
 function serve(request, response) {

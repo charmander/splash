@@ -91,7 +91,6 @@ html
 						div class: "post-caption"
 							!"#{clean.rewriteHTML(post.caption)}"
 					elif type === 'video'
-						% const youtubeMatch = YOUTUBE_PERMALINK.exec(post.permalink_url);
 						% const thumbnailLink = post.thumbnail_url && clean.rewriteLink(url.parse(post.thumbnail_url, false, true));
 
 						% if (post.video_url)
@@ -103,17 +102,6 @@ html
 									preload: "none"
 									controls:
 									poster: "#{post.thumbnail_url}"
-						% else if (youtubeMatch)
-							figure
-								video
-									class: "post-video"
-									src: "/video/#{youtubeMatch[1]}"
-									type: "video/webm"
-									preload: "none"
-									controls:
-
-									if thumbnailLink.embeddable
-										poster: "#{url.format(thumbnailLink)}"
 						% else if (post.permalink_url)
 							a
 								href: "#{post.permalink_url}"

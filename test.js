@@ -44,9 +44,6 @@ describe('HTML rewriter', function (it) {
 		assert.strictEqual(
 			rewriteHTML('<img src="https://41.media.tumblr.com/foo.png" alt="Interesting photo">'),
 			'<img src="https://41.media.tumblr.com/foo.png" alt="Interesting photo">');
-		assert.strictEqual(
-			rewriteHTML('<img src="http://i1.ytimg.com/" alt="YouTube thumbnail">'),
-			'<img src="https://i1.ytimg.com/" alt="YouTube thumbnail">');
 	});
 
 	it('shouldn’t double-encode, and should decode when possible', function () {

@@ -58,7 +58,6 @@ const TUMBLR_DOMAIN = /^[\w-]+\.tumblr\.com$/i;
 const TUMBLR_COMPATIBLE_PATH = /^\/(?:post\/\d+(?:\/|$))?/;
 const TUMBLR_MEDIA = /^(?:\d+\.)?media\.tumblr\.com$/;
 const TUMBLR_AUDIO = /^\/audio_file\/[^\/]+\/\d+\/(tumblr_[a-zA-Z\d]+)$/;
-const YOUTUBE_THUMBNAIL_DOMAIN = /^[\w-]+\.ytimg\.com$/i;
 
 function isSafeUri(uriInfo) {
 	return safeProtocols.indexOf(uriInfo.protocol) !== -1;
@@ -104,9 +103,6 @@ function rewriteLink(uriInfo) {
 		uriInfo.hostname = null;
 		uriInfo.host = null;
 		uriInfo.slashes = false;
-	} else if (YOUTUBE_THUMBNAIL_DOMAIN.test(hostname)) {
-		uriInfo.protocol = 'https:';
-		uriInfo.embeddable = true;
 	}
 
 	return uriInfo;
