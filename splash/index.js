@@ -15,13 +15,18 @@ const config = require('../config');
 const consumerKey = config.api.consumer_key;
 
 function getAsync(url) {
-	return new Bluebird(function (resolve) {
-		https.get(url, resolve);
+	return new Bluebird(function (resolve, reject) {
+		https.get(url, resolve)
+			.on('error', reject);
 	});
 }
 
 function getJSON(url) {
 	return getAsync(url).then(function (response) {
+		if (response.statusCode !== 200) {
+			return Promise.reject(new Error(`Unexpected status code: ${response.statusCode}`));
+		}
+
 		const bodyParts = [];
 
 		response.on('data', function (part) {
