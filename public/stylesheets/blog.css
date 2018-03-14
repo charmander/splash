@@ -8,6 +8,7 @@
 body {
 	background-color: #2c4762;
 	font-family: sans-serif;
+	margin: 0.4em 0;
 }
 
 #nsfw-indicator {
@@ -37,16 +38,13 @@ body {
 }
 
 #header {
-	margin-top: 2em;
-	margin-bottom: 2em;
+	margin: 2em 0.4em;
 }
 
 #avatar {
 	border-radius: 2px;
-	left: 0.2em;
-	position: fixed;
-	top: 0.7em;
-	z-index: -1;
+	display: block;
+	margin: 0 auto;
 }
 
 #title {
@@ -68,8 +66,8 @@ body {
 	font-size: 1.2em;
 	font-weight: normal;
 	margin: 0 auto;
+	max-width: 50rem;
 	text-align: center;
-	width: 50rem;
 }
 
 #description a {
@@ -85,10 +83,30 @@ body {
 	border-bottom-color: white;
 }
 
+@media (max-width: 40em) {
+	#title {
+		font-size: 6.25vw;
+	}
+
+	#description {
+		font-size: 3vw;
+	}
+}
+
+@media (max-width: 30em) {
+	#title {
+		font-size: 1.875em;
+	}
+
+	#description {
+		font-size: 0.9em;
+	}
+}
+
 #posts {
 	display: block;
 	margin: 0 auto;
-	width: 50em;
+	max-width: 50em;
 }
 
 .post {
@@ -99,18 +117,10 @@ body {
 	position: relative;
 }
 
-.post-actions {
-	left: 100%;
-	list-style: none;
-	margin: 0;
-	margin-left: 0.6em;
-	padding: 0;
-	position: absolute;
-	top: 0;
-}
-
-.post-actions a {
-	color: white;
+@media (max-width: 50em) {
+	.post {
+		border-radius: 0;
+	}
 }
 
 .post blockquote {
@@ -177,16 +187,27 @@ body {
 	margin-right: 0.7em;
 }
 
+.post-alternates {
+	color: #666;
+	margin-left: 0.6em;
+}
+
+.post-alternates a {
+	color: #36f;
+	text-transform: lowercase;
+}
+
 #page-navigation {
-	margin: 0 auto;
-	width: 50em;
+	display: flex;
+	margin: 1em auto;
+	max-width: 50em;
 }
 
 #page-navigation a {
 	color: white;
 	font-size: 0.9em;
 	font-weight: bold;
-	opacity: 0.9;
+	opacity: 0.8;
 	outline: none;
 	overflow: hidden;
 	text-decoration: none;
@@ -198,5 +219,5 @@ body {
 }
 
 #page-navigation [rel=next] {
-	float: right;
+	margin-left: auto;
 }

@@ -4,6 +4,8 @@ html
 	head
 		meta charset: "utf-8"
 
+		meta name: "viewport" content: "initial-scale=1"
+
 		title "#{data.blog.title || data.name} · splash"
 
 		link rel: "stylesheet" href: "/stylesheets/blog.css"
@@ -16,11 +18,15 @@ html
 				span "NSFW"
 
 		header id: "header"
+			img id: "avatar"
+				src: "https://api.tumblr.com/v2/blog/#{data.name}/avatar/96"
+				alt: "#{data.name}’s avatar"
+				width: "96"
+				height: "96"
+
 			h1 id: "title"
 				a href: "/blog/#{data.name}/"
-					img id: "avatar" src: "https://api.tumblr.com/v2/blog/#{data.name}/avatar" alt: "#{data.name}’s avatar"
-
-					" #{data.blog.title || data.name}"
+					"#{data.blog.title || data.name}"
 
 			h2 id: "description"
 				!"#{clean.rewriteHTML(data.blog.description)}"
@@ -32,12 +38,6 @@ html
 
 				article class: "post #{type}-post"
 					header
-						ul class: "post-actions"
-							li a class: "view-source"
-								href: "data:text/plain;charset=utf-8,#{encodeURIComponent(inspect(post, { depth: null }))}"
-								target: "_blank"
-								"View source"
-
 						if post.title
 							h2 class: "post-title"
 								if post.url
@@ -145,6 +145,16 @@ html
 							a href: "#{clean.rewriteLinkString(post.post_url)}"
 								time class: "post-date" datetime: "#{date.toISOString()}" title: "#{date.toString()}" pubdate:
 									"#{relativeDate(date)}"
+
+							" " span class: "post-alternates"
+								"("
+								a href: "#{post.post_url}"
+									"original"
+								", "
+								a href: "data:text/plain;charset=utf-8,#{encodeURIComponent(inspect(post, { depth: null }))}"
+									"data"
+								")"
+
 
 						ul class: "post-tags"
 							for tag of post.tags
