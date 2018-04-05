@@ -120,6 +120,12 @@ const routes = [
 ];
 
 function serve(request, response) {
+	if (request.headers.host !== config.host) {
+		response.writeHead(400, { 'Content-Type': 'text/plain' });
+		response.end('Unexpected Host header');
+		return;
+	}
+
 	const uri = URL.parse(request.url, true);
 	const parts = [request.method].concat(uri.pathname.split('/').slice(1).map(decodeURIComponent));
 
