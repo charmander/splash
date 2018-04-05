@@ -5,5 +5,11 @@
 		"htmlparser2": "3.9.2",
 		"he": "1.1.1"
 	},
+	"devDependencies": {
+		"@charmander/eslint-config-base": "1.1.0"
+	},
+	"scripts": {
+		"test": "node test"
+	},
 	"private": true
 }

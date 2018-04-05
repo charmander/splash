@@ -19,7 +19,7 @@ const safeElements = [
 	'ruby', 'rt', 'rp', 'bdi', 'bdo',
 	'span', 'br', 'wbr',
 	'ins', 'del',
-	'table', 'caption', 'tbody', 'thead', 'tfoot', 'tr', 'td', 'th'
+	'table', 'caption', 'tbody', 'thead', 'tfoot', 'tr', 'td', 'th',
 ];
 
 const safeAttributes = {
@@ -28,7 +28,7 @@ const safeAttributes = {
 	img: ['alt', 'longdesc'],
 	ol: ['type', 'start'],
 	ul: ['type'],
-	time: ['datetime']
+	time: ['datetime'],
 };
 
 // Adapted from https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml
@@ -43,7 +43,7 @@ const safeProtocols = [
 	'irc:', 'irc6:', 'ircs:', 'jabber:', 'xmpp:',
 	// Miscellaneous
 	'bitcoin:', 'magnet:', 'maps:', 'news:', 'nntp:', 'rtsp:', 'snews:', 'steam:',
-	'telnet:', 'tv:', 'view-source:', 'ymsgr:', 'finger:', 'feed:'
+	'telnet:', 'tv:', 'view-source:', 'ymsgr:', 'finger:', 'feed:',
 ];
 
 const httpsDomains = [
@@ -51,13 +51,13 @@ const httpsDomains = [
 	'api.tumblr.com',
 	'tumblr.com',
 	'imgur.com',
-	'i.imgur.com'
+	'i.imgur.com',
 ];
 
 const TUMBLR_DOMAIN = /^[\w-]+\.tumblr\.com$/i;
 const TUMBLR_COMPATIBLE_PATH = /^\/(?:post\/\d+(?:\/|$))?/;
 const TUMBLR_MEDIA = /^(?:\d+\.)?media\.tumblr\.com$/;
-const TUMBLR_AUDIO = /^\/audio_file\/[^\/]+\/\d+\/(tumblr_[a-zA-Z\d]+)$/;
+const TUMBLR_AUDIO = /^\/audio_file\/[^/]+\/\d+\/(tumblr_[a-zA-Z\d]+)$/;
 
 function isSafeUri(uriInfo) {
 	return safeProtocols.indexOf(uriInfo.protocol) !== -1;
@@ -120,7 +120,7 @@ function cleanAttributes(name, attributes) {
 			const uriInfo = url.parse(value, false, true);
 
 			if (!isSafeUri(uriInfo)) {
-				return;
+				return '';
 			}
 
 			return ' href="' + templateUtilities.escapeAttributeValue(url.format(rewriteLink(uriInfo))) + '"';
@@ -129,7 +129,7 @@ function cleanAttributes(name, attributes) {
 		const safeElementAttributes = safeAttributes[name];
 
 		if (safeAttributes._global.indexOf(attribute) === -1 && (!safeElementAttributes || safeElementAttributes.indexOf(attribute) === -1)) {
-			return;
+			return '';
 		}
 
 		return ' ' + attribute + '="' + templateUtilities.escapeAttributeValue(value) + '"';
@@ -201,7 +201,7 @@ function rewriteHTML(html) {
 				output += '</' + name + '>';
 				open.pop();
 			}
-		}
+		},
 	});
 
 	parser.end(html);

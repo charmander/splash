@@ -47,19 +47,19 @@ const templateLoader = new DirectoryLoader(__dirname, {
 			return count + ' ' + (count === 1 ? unit : unit + 's') + ' ago';
 		},
 		update: function update(obj, changes) {
-			var result = {};
+			const result = {};
 
-			for (let k of Object.keys(obj)) {
+			for (const k of Object.keys(obj)) {
 				result[k] = obj[k];
 			}
 
-			for (let k of Object.keys(changes)) {
+			for (const k of Object.keys(changes)) {
 				result[k] = changes[k];
 			}
 
 			return result;
 		},
-	}
+	},
 });
 
 exports.blog = templateLoader.load('blog');

@@ -1,0 +1,9 @@
+{
+	"env": {
+		"node": true
+	},
+	"extends": "@charmander/eslint-config-base",
+	"rules": {
+		"no-console": "off"
+	}
+}

@@ -5,7 +5,7 @@
 const Bluebird = require('bluebird');
 const http = require('http');
 const https = require('https');
-const match_ = require('./match'), match = match_.match, bind = match_.bind;
+const {match, bind} = require('./match');
 const URL = require('url');
 const util = require('util');
 const qs = require('querystring');
@@ -79,7 +79,7 @@ function viewBlog(params, request, response) {
 
 	const query = {
 		offset: offset,
-		api_key: consumerKey
+		api_key: consumerKey,
 	};
 
 	if (params.tag) {
@@ -126,7 +126,7 @@ function serve(request, response) {
 	request.uri = uri;
 	request.query = uri.query;
 
-	for (let route of routes) {
+	for (const route of routes) {
 		const handler = route(parts);
 
 		if (handler) {
