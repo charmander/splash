@@ -59,6 +59,7 @@ function viewPost(params, request, response) {
 	function success(data) {
 		const apiResponse = data.response;
 		apiResponse.name = params.name;
+		apiResponse.domain = URL.parse(apiResponse.blog.url).hostname;
 		apiResponse.pageUri = request.uri;
 
 		response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -96,6 +97,7 @@ function viewBlog(params, request, response) {
 		apiResponse.limit = 20;
 		apiResponse.offset = offset;
 		apiResponse.name = params.name;
+		apiResponse.domain = URL.parse(apiResponse.blog.url).hostname;
 		apiResponse.pageUri = request.uri;
 
 		response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });

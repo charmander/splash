@@ -68,7 +68,7 @@ const stripSuffix = (text, suffix) =>
 		text.slice(0, -suffix.length) :
 		text;
 
-function rewriteLink(uriInfo) {
+function rewriteLink(uriInfo, baseDomain) {
 	if (uriInfo.port !== null) {
 		return uriInfo;
 	}
@@ -97,22 +97,28 @@ function rewriteLink(uriInfo) {
 	} else if (TUMBLR_MEDIA.test(hostname)) {
 		uriInfo.protocol = 'https:';
 		uriInfo.embeddable = true;
-	} else if (TUMBLR_DOMAIN.test(hostname) && TUMBLR_COMPATIBLE_PATH.test(pathname)) {
-		uriInfo.pathname = '/blog/' + stripSuffix(hostname, '.tumblr.com') + pathname;
-		uriInfo.protocol = null;
-		uriInfo.hostname = null;
-		uriInfo.host = null;
-		uriInfo.slashes = false;
+	} else {
+		const isTumblrDomain =
+			TUMBLR_DOMAIN.test(hostname) ||
+			(baseDomain !== null && baseDomain === hostname);
+
+		if (isTumblrDomain && TUMBLR_COMPATIBLE_PATH.test(pathname)) {
+			uriInfo.pathname = '/blog/' + stripSuffix(hostname, '.tumblr.com') + pathname;
+			uriInfo.protocol = null;
+			uriInfo.hostname = null;
+			uriInfo.host = null;
+			uriInfo.slashes = false;
+		}
 	}
 
 	return uriInfo;
 }
 
-function rewriteLinkString(uri) {
-	return url.format(rewriteLink(url.parse(uri, false, true)));
+function rewriteLinkString(uri, baseDomain) {
+	return url.format(rewriteLink(url.parse(uri, false, true), baseDomain));
 }
 
-function cleanAttributes(name, attributes) {
+function cleanAttributes(name, attributes, baseDomain) {
 	return Object.keys(attributes).map(function (attribute) {
 		const value = attributes[attribute];
 
@@ -123,7 +129,7 @@ function cleanAttributes(name, attributes) {
 				return '';
 			}
 
-			return ' href="' + templateUtilities.escapeAttributeValue(url.format(rewriteLink(uriInfo))) + '"';
+			return ' href="' + templateUtilities.escapeAttributeValue(url.format(rewriteLink(uriInfo, baseDomain))) + '"';
 		}
 
 		const safeElementAttributes = safeAttributes[name];
@@ -136,7 +142,7 @@ function cleanAttributes(name, attributes) {
 	}).join('');
 }
 
-function rewriteHTML(html) {
+function rewriteHTML(html, baseDomain) {
 	let output = '';
 	const open = [];
 
@@ -155,10 +161,10 @@ function rewriteHTML(html) {
 				const uriInfo = url.parse(attributes.src, false, true);
 
 				if (isSafeUri(uriInfo)) {
-					const rewrittenUri = rewriteLink(uriInfo);
+					const rewrittenUri = rewriteLink(uriInfo, baseDomain);
 
 					if (rewrittenUri.embeddable) {
-						output += '<img src="' + templateUtilities.escapeAttributeValue(url.format(rewrittenUri)) + '"' + cleanAttributes('img', attributes) + '>';
+						output += '<img src="' + templateUtilities.escapeAttributeValue(url.format(rewrittenUri)) + '"' + cleanAttributes('img', attributes, baseDomain) + '>';
 					} else {
 						const linkable = open.indexOf('a') === -1;
 

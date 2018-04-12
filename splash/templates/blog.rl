@@ -1,3 +1,7 @@
+% const rewriteHTML = html => clean.rewriteHTML(html, data.domain);
+% const rewriteLink = l => clean.rewriteLink(l, data.domain);
+% const rewriteLinkString = l => clean.rewriteLinkString(l, data.domain);
+
 doctype
 
 html
@@ -29,7 +33,7 @@ html
 					"#{data.blog.title || data.name}"
 
 			h2 id: "description"
-				!"#{clean.rewriteHTML(data.blog.description)}"
+				!"#{rewriteHTML(data.blog.description)}"
 
 		main id: "posts"
 			for post of data.posts
@@ -41,22 +45,22 @@ html
 						if post.title
 							h2 class: "post-title"
 								if post.url
-									a href: "#{clean.rewriteLinkString(post.url)}" "#{post.title}"
+									a href: "#{rewriteLinkString(post.url)}" "#{post.title}"
 								else
 									"#{post.title}"
 						elif post.url
 							h2 class: "post-title"
-								a href: "#{clean.rewriteLinkString(post.url)}" "#{post.url}"
+								a href: "#{rewriteLinkString(post.url)}" "#{post.url}"
 
 					if type === 'text'
-						!"#{clean.rewriteHTML(post.body)}"
+						!"#{rewriteHTML(post.body)}"
 					elif type === 'answer'
 						blockquote class: "post-question"
 							header
 								h4
 									strong class: "asker"
 										if post.asking_url
-											a "#{post.asking_name}" href: "#{clean.rewriteLinkString(post.asking_url)}"
+											a "#{post.asking_name}" href: "#{rewriteLinkString(post.asking_url)}"
 										else
 											"#{post.asking_name}"
 
@@ -64,11 +68,11 @@ html
 
 							p "#{post.question}"
 
-						!"#{clean.rewriteHTML(post.answer)}"
+						!"#{rewriteHTML(post.answer)}"
 					elif type === 'photo'
 						for photo of post.photos
 							% const photoUrl = photo.original_size.url;
-							% const mediaLink = clean.rewriteLink(url.parse(photoUrl, false, true));
+							% const mediaLink = rewriteLink(url.parse(photoUrl, false, true));
 							% const photoInfo = photo.alt_sizes[0];
 
 							if mediaLink.embeddable
@@ -89,9 +93,9 @@ html
 									"#{photo.caption || 'View image'}"
 
 						div class: "post-caption"
-							!"#{clean.rewriteHTML(post.caption)}"
+							!"#{rewriteHTML(post.caption)}"
 					elif type === 'video'
-						% const thumbnailLink = post.thumbnail_url && clean.rewriteLink(url.parse(post.thumbnail_url, false, true));
+						% const thumbnailLink = post.thumbnail_url && rewriteLink(url.parse(post.thumbnail_url, false, true));
 
 						% if (post.video_url)
 							figure
@@ -112,26 +116,26 @@ html
 								"Video unavailable."
 
 						div class: "post-caption"
-							!"#{clean.rewriteHTML(post.caption)}"
+							!"#{rewriteHTML(post.caption)}"
 					elif type === 'audio'
 						figure
 							audio
 								class: "post-audio"
-								src: "#{clean.rewriteLinkString(post.audio_url)}"
+								src: "#{rewriteLinkString(post.audio_url)}"
 								type: "audio/mp3"
 								controls:
 
 							figcaption class: "post-caption"
-								!"#{clean.rewriteHTML(post.caption)}"
+								!"#{rewriteHTML(post.caption)}"
 					elif type === 'link'
 						div class: "post-caption"
-							!"#{clean.rewriteHTML(post.description)}"
+							!"#{rewriteHTML(post.description)}"
 					elif type === 'quote'
 						blockquote class: "post-quote"
-							!"#{clean.rewriteHTML(post.text)}"
+							!"#{rewriteHTML(post.text)}"
 
 							footer
-								cite !"— #{clean.rewriteHTML(post.source)}"
+								cite !"— #{rewriteHTML(post.source)}"
 					elif type === 'chat'
 						dl class: "post-dialogue"
 							for retort of post.dialogue
@@ -142,7 +146,7 @@ html
 
 					footer class: "post-info"
 						div
-							a href: "#{clean.rewriteLinkString(post.post_url)}"
+							a href: "#{rewriteLinkString(post.post_url)}"
 								time class: "post-date" datetime: "#{date.toISOString()}" title: "#{date.toString()}" pubdate:
 									"#{relativeDate(date)}"
 
@@ -169,11 +173,11 @@ html
 								for note of post.notes
 									li
 										if note.post_id
-											a href: "#{clean.rewriteLinkString(note.blog_url)}/post/#{note.post_id}/" "#{note.type}"
+											a href: "#{rewriteLinkString(note.blog_url)}/post/#{note.post_id}/" "#{note.type}"
 										else
 											"#{note.type}"
 										" from "
-										a href: "#{clean.rewriteLinkString(note.blog_url)}" "#{note.blog_name}"
+										a href: "#{rewriteLinkString(note.blog_url)}" "#{note.blog_name}"
 
 		% const offset = data.offset;
 		% const limit = data.limit;
