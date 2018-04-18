@@ -4,6 +4,7 @@
 	},
 	"extends": "@charmander/eslint-config-base",
 	"rules": {
-		"no-console": "off"
+		"no-console": "off",
+		"no-restricted-globals": ["error", "Promise"]
 	}
 }

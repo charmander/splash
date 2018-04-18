@@ -22,7 +22,7 @@ function getAsync(url) {
 function getJSON(url) {
 	return getAsync(url).then(function (response) {
 		if (response.statusCode !== 200) {
-			return Promise.reject(new Error(`Unexpected status code: ${response.statusCode}`));
+			return Bluebird.reject(new Error(`Unexpected status code: ${response.statusCode}`));
 		}
 
 		const bodyParts = [];
