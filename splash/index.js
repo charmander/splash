@@ -1,5 +1,3 @@
-#!/usr/bin/env iojs
-
 'use strict';
 
 const Bluebird = require('bluebird');
