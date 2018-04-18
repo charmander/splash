@@ -68,6 +68,9 @@ const stripSuffix = (text, suffix) =>
 		text.slice(0, -suffix.length) :
 		text;
 
+const blogPath = (name, pathname = '/') =>
+	'/blog/' + stripSuffix(name, '.tumblr.com') + pathname;
+
 function rewriteLink(uriInfo, baseDomain) {
 	if (uriInfo.port !== null) {
 		return uriInfo;
@@ -103,7 +106,7 @@ function rewriteLink(uriInfo, baseDomain) {
 			(baseDomain !== null && baseDomain === hostname);
 
 		if (isTumblrDomain && TUMBLR_COMPATIBLE_PATH.test(pathname)) {
-			uriInfo.pathname = '/blog/' + stripSuffix(hostname, '.tumblr.com') + pathname;
+			uriInfo.pathname = blogPath(hostname, pathname);
 			uriInfo.protocol = null;
 			uriInfo.hostname = null;
 			uriInfo.host = null;
@@ -215,6 +218,7 @@ function rewriteHTML(html, baseDomain) {
 	return Markup.unsafe(output);
 }
 
+exports.blogPath = blogPath;
 exports.rewriteLink = rewriteLink;
 exports.rewriteLinkString = rewriteLinkString;
 exports.rewriteHTML = rewriteHTML;

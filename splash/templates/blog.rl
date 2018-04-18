@@ -173,7 +173,8 @@ html
 								for note of post.notes
 									li
 										if note.post_id
-											a href: "#{rewriteLinkString(note.blog_url)}/post/#{note.post_id}/" "#{note.type}"
+											% const reblogBlog = url.parse(note.blog_url).hostname;
+											a href: "#{clean.blogPath(reblogBlog, `/post/${note.post_id}/`)}" "#{note.type}"
 										else
 											"#{note.type}"
 										" from "
