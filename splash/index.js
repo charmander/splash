@@ -50,7 +50,7 @@ function getJSON(url) {
 
 function viewPost(params, request, response) {
 	const url = util.format(
-		'https://api.tumblr.com/v2/blog/%s/posts?id=%s&notes_info=true&api_key=%s',
+		'https://api.tumblr.com/v2/blog/%s/posts?id=%s&reblog_info=true&notes_info=true&api_key=%s',
 		params.name, params.id, consumerKey
 	);
 
@@ -79,6 +79,7 @@ function viewBlog(params, request, response) {
 	const query = {
 		offset: offset,
 		api_key: consumerKey,
+		reblog_info: true,
 	};
 
 	if (params.tag) {

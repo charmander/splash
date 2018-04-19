@@ -2,9 +2,113 @@
 % const rewriteLink = l => clean.rewriteLink(l, data.domain);
 % const rewriteLinkString = l => clean.rewriteLinkString(l, data.domain);
 
-doctype
+macro post-content(post, type, hasTrail)
+	if type === 'text'
+		if hasTrail
+			yield
+		else
+			!"#{rewriteHTML(post.body)}"
+	elif type === 'answer'
+		blockquote class: "post-question"
+			header
+				h4
+					strong class: "asker"
+						if post.asking_url
+							a "#{post.asking_name}" href: "#{rewriteLinkString(post.asking_url)}"
+						else
+							"#{post.asking_name}"
 
-html
+					" asked:"
+
+			p "#{post.question}"
+
+		!"#{rewriteHTML(post.answer)}"
+	elif type === 'photo'
+		for photo of post.photos
+			% const photoUrl = photo.original_size.url;
+			% const mediaLink = rewriteLink(url.parse(photoUrl, false, true));
+			% const photoInfo = photo.alt_sizes[0];
+
+			if mediaLink.embeddable
+				figure class: "post-photo"
+					img
+						src: "#{url.format(mediaLink)}"
+						alt: "#{photo.caption}"
+						width: "#{photoInfo.width}"
+						height: "#{photoInfo.height}"
+
+					if photo.caption
+						figcaption
+							"#{photo.caption}"
+			else
+				a
+					href: "#{url.format(mediaLink)}"
+					rel: "noreferrer"
+					"#{photo.caption || 'View image'}"
+
+		if hasTrail
+			yield
+		else
+			div class: "post-caption"
+				!"#{rewriteHTML(post.caption)}"
+	elif type === 'video'
+		% const thumbnailLink = post.thumbnail_url && rewriteLink(url.parse(post.thumbnail_url, false, true));
+
+		% if (post.video_url)
+			figure
+				video
+					class: "post-video"
+					src: "#{post.video_url}"
+					type: "video/mp4"
+					preload: "none"
+					controls:
+					poster: "#{post.thumbnail_url}"
+		% else if (post.permalink_url)
+			a
+				href: "#{post.permalink_url}"
+				rel: "noreferrer"
+				"View video"
+		% else
+			p class: "error"
+				"Video unavailable."
+
+		if hasTrail
+			yield
+		else
+			div class: "post-caption"
+				!"#{rewriteHTML(post.caption)}"
+	elif type === 'audio'
+		figure
+			audio
+				class: "post-audio"
+				src: "#{rewriteLinkString(post.audio_url)}"
+				type: "audio/mp3"
+				controls:
+
+			if !hasTrail
+				figcaption class: "post-caption"
+					!"#{rewriteHTML(post.caption)}"
+
+		if hasTrail
+			yield
+	elif type === 'link'
+		div class: "post-caption"
+			!"#{rewriteHTML(post.description)}"
+	elif type === 'quote'
+		blockquote class: "post-quote"
+			!"#{rewriteHTML(post.text)}"
+
+			footer
+				cite !"— #{rewriteHTML(post.source)}"
+	elif type === 'chat'
+		dl class: "post-dialogue"
+			for retort of post.dialogue
+				dt "#{retort.label}"
+				dd "#{retort.phrase}"
+	else
+		% throw new Error('Unexpected type: ' + type);
+
+doctype html
 	head
 		meta charset: "utf-8"
 
@@ -38,9 +142,8 @@ html
 		main id: "posts"
 			for post of data.posts
 				% const date = new Date(post.timestamp * 1000);
-				% const type = post.type;
 
-				article class: "post #{type}-post"
+				article class: "post"
 					header
 						if post.title
 							h2 class: "post-title"
@@ -52,97 +155,31 @@ html
 							h2 class: "post-title"
 								a href: "#{rewriteLinkString(post.url)}" "#{post.url}"
 
-					if type === 'text'
-						!"#{rewriteHTML(post.body)}"
-					elif type === 'answer'
-						blockquote class: "post-question"
-							header
-								h4
-									strong class: "asker"
-										if post.asking_url
-											a "#{post.asking_name}" href: "#{rewriteLinkString(post.asking_url)}"
-										else
-											"#{post.asking_name}"
+					% let {trail = []} = post;
+					% const root = post.reblogged_root_id;
 
-									" asked:"
+					do
+						if (root !== undefined && trail.length !== 0 && root !== trail[0].post.id) {
+							trail = [{
+								blog: {
+									name: post.reblogged_root_name,
+								},
+								post: {id: root},
+								content: null,
+							}].concat(trail);
+						}
 
-							p "#{post.question}"
+					%
+						post-content(post, post.type, trail.length > 1)
+							for reblog of trail
+								div class: "trail"
+									h3 class: "trail-blog"
+										a href: "#{clean.blogPath(reblog.blog.name, `/post/${reblog.post.id}/`)}"
+											"#{reblog.blog.name}"
 
-						!"#{rewriteHTML(post.answer)}"
-					elif type === 'photo'
-						for photo of post.photos
-							% const photoUrl = photo.original_size.url;
-							% const mediaLink = rewriteLink(url.parse(photoUrl, false, true));
-							% const photoInfo = photo.alt_sizes[0];
-
-							if mediaLink.embeddable
-								figure class: "post-photo"
-									img
-										src: "#{url.format(mediaLink)}"
-										alt: "#{photo.caption}"
-										width: "#{photoInfo.width}"
-										height: "#{photoInfo.height}"
-
-									if photo.caption
-										figcaption
-											"#{photo.caption}"
-							else
-								a
-									href: "#{url.format(mediaLink)}"
-									rel: "noreferrer"
-									"#{photo.caption || 'View image'}"
-
-						div class: "post-caption"
-							!"#{rewriteHTML(post.caption)}"
-					elif type === 'video'
-						% const thumbnailLink = post.thumbnail_url && rewriteLink(url.parse(post.thumbnail_url, false, true));
-
-						% if (post.video_url)
-							figure
-								video
-									class: "post-video"
-									src: "#{post.video_url}"
-									type: "video/mp4"
-									preload: "none"
-									controls:
-									poster: "#{post.thumbnail_url}"
-						% else if (post.permalink_url)
-							a
-								href: "#{post.permalink_url}"
-								rel: "noreferrer"
-								"View video"
-						% else
-							p class: "error"
-								"Video unavailable."
-
-						div class: "post-caption"
-							!"#{rewriteHTML(post.caption)}"
-					elif type === 'audio'
-						figure
-							audio
-								class: "post-audio"
-								src: "#{rewriteLinkString(post.audio_url)}"
-								type: "audio/mp3"
-								controls:
-
-							figcaption class: "post-caption"
-								!"#{rewriteHTML(post.caption)}"
-					elif type === 'link'
-						div class: "post-caption"
-							!"#{rewriteHTML(post.description)}"
-					elif type === 'quote'
-						blockquote class: "post-quote"
-							!"#{rewriteHTML(post.text)}"
-
-							footer
-								cite !"— #{rewriteHTML(post.source)}"
-					elif type === 'chat'
-						dl class: "post-dialogue"
-							for retort of post.dialogue
-								dt "#{retort.label}"
-								dd "#{retort.phrase}"
-					else
-						p "Type not ready: #{type}"
+									if reblog.content !== null
+										div class: "trail-content"
+											!"#{rewriteHTML(reblog.content)}"
 
 					footer class: "post-info"
 						div
