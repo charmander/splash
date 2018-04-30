@@ -7,7 +7,6 @@ const clean = require('../clean');
 
 const templateLoader = new DirectoryLoader(__dirname, {
 	globals: {
-		Buffer: Buffer,
 		url: url,
 		inspect: util.inspect,
 		clean: clean,
