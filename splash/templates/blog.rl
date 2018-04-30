@@ -116,7 +116,8 @@ doctype html
 
 		title "#{data.blog.title || data.name} · splash"
 
-		link rel: "stylesheet" href: "/stylesheets/blog.css"
+		style
+			!"#{stylesheet}"
 
 		link rel: "index" href: "/blog/#{data.name}/"
 

@@ -8,6 +8,7 @@ const URL = require('url');
 const util = require('util');
 const qs = require('querystring');
 
+const {stylesheet} = require('./assets');
 const templates = require('./templates');
 const config = require('../config');
 const consumerKey = config.api.consumer_key;
@@ -121,7 +122,24 @@ const routes = [
 ];
 
 function serve(request, response) {
-	if (request.headers.host !== config.host) {
+	let requestHost = request.headers.host;
+
+	if (requestHost !== undefined) {
+		const i = requestHost.lastIndexOf(':');
+
+		if (i !== -1 && /^\d{1,5}$/.test(requestHost.substring(i + 1))) {
+			requestHost = requestHost.substring(0, i);
+		}
+	}
+
+	response.setHeader(
+		'Content-Security-Policy',
+		`default-src 'none'; style-src '${stylesheet.integrity}'; img-src https://api.tumblr.com https://*.media.tumblr.com; media-src https://vtt.tumblr.com; form-action 'none'; frame-ancestors 'none'`
+	);
+	response.setHeader('Referrer-Policy', 'no-referrer');
+	response.setHeader('X-Content-Type-Options', 'nosniff');
+
+	if (requestHost !== config.host) {
 		response.writeHead(400, { 'Content-Type': 'text/plain' });
 		response.end('Unexpected Host header');
 		return;
@@ -146,11 +164,23 @@ function serve(request, response) {
 	response.end('Not found.');
 }
 
-const server = http.createServer(serve);
-server.listen('/tmp/splash.sock');
+{
+	const server = http.createServer(serve);
 
-process.once('SIGINT', function () {
-	server.close(function () {
-		process.exit(0);
+	server.listen(process.env.PORT, '::1');
+
+	server.once('listening', () => {
+		const address = server.address();
+		const where =
+			typeof address === 'string' ?
+				`${address} (as ${config.host})` :
+				`http://${config.host}:${address.port}/ (${address.address})`;
+
+		console.error(`ready at ${where}`);
 	});
-});
+
+	process.once('SIGINT', function () {
+		console.error('Shutting down…');
+		server.close();
+	});
+}

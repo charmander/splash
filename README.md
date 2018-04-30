@@ -8,19 +8,34 @@ no JavaScript. It connects to `api.tumblr.com` over HTTPS, avoiding DNS leakage.
 Installation
 ------------
 
-```shellsession
-~$ git clone https://github.com/charmander/splash
-~$ cd splash
-~/splash$ npm install --no-save
-~/splash$ node splash
-```
+- Clone the repo:
 
-You will need some kind of reverse proxy – [Nginx][], for example.
-It should serve static files from splash’s `public/` directory and proxy from
-`/tmp/splash.sock`.
+    ```shellsession
+    ~$ git clone https://github.com/charmander/splash
+    ~$ cd splash
+    ```
 
-Add a hosts entry for `::1 splash`, and visit
-<http://splash/blog/staff/>.
+- Install dependencies:
+
+    ```shellsession
+    ~/splash$ npm install
+    ```
+
+- Install the included [Bree Serif Regular](fonts/bree-serif) (optional)
+
+- Start the server:
+
+    ```shellsession
+    ~/splash$ PORT=3000 node splash
+    ```
+
+- Add a hosts entry for `::1 splash`:
+
+    ```shellsession
+    ~/splash$ echo '::1 splash' | sudo tee -a /etc/hosts
+    ```
+
+- Visit <http://splash:3000/blog/staff/>!
 
 
 TODO
@@ -28,6 +43,3 @@ TODO
 
  - Private posts (the v2 API doesn’t seem to support these, but there are a few
    ways around that)
-
-
-  [Nginx]: https://nginx.org/

@@ -1,12 +1,18 @@
 'use strict';
 
-const util = require('util');
+const assert = require('assert');
 const url = require('url');
+const util = require('util');
+const { Markup } = require('razorleaf');
 const { DirectoryLoader } = require('razorleaf/directory-loader');
 const clean = require('../clean');
+const { stylesheet } = require('../assets');
+
+assert(!stylesheet.content.includes('</'));
 
 const templateLoader = new DirectoryLoader(__dirname, {
 	globals: {
+		stylesheet: Markup.unsafe(stylesheet.content),
 		url: url,
 		inspect: util.inspect,
 		clean: clean,
