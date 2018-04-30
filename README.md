@@ -8,6 +8,8 @@ no JavaScript. It connects to `api.tumblr.com` over HTTPS, avoiding DNS leakage.
 Installation
 ------------
 
+Requires [Node][] 6 or later.
+
 - Clone the repo:
 
     ```shellsession
@@ -43,3 +45,6 @@ TODO
 
  - Private posts (the v2 API doesn’t seem to support these, but there are a few
    ways around that)
+
+
+[Node]: https://nodejs.org/
