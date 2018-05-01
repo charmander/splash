@@ -10,7 +10,7 @@ const rewriteHTML = html =>
 	clean.rewriteHTML(html)._html;
 
 describe('HTML rewriter', function (it) {
-	it('should retain safe HTML', function () {
+	it('retains safe HTML', function () {
 		function attempt(html) {
 			assert.strictEqual(rewriteHTML(html), html);
 		}
@@ -22,19 +22,19 @@ describe('HTML rewriter', function (it) {
 		assert.strictEqual(rewriteHTML('<B>Uppercase.</B>'), '<b>Uppercase.</b>');
 	});
 
-	it('should clean all JavaScript', function () {
+	it('cleans all JavaScript', function () {
 		assert.strictEqual(rewriteHTML('<script>alert(1);</script>'), 'alert(1);');
 		assert.strictEqual(rewriteHTML('<a href="javascript:alert(1)">link</a>'), '<a>link</a>');
 		assert.strictEqual(rewriteHTML('<a href="#" onclick="alert(1)">link</a>'), '<a href="#">link</a>');
 	});
 
-	it('should always produce valid, consistent HTML', function () {
+	it('always produces valid, consistent HTML', function () {
 		assert.strictEqual(rewriteHTML('>>> <<< & <blockquote><b>1 <i>2</b> 3</i> 4</u>'), '>>> &lt;&lt;&lt; &amp; <blockquote><b>1 <i>2</i></b> 3 4</blockquote>');
 		assert.strictEqual(rewriteHTML('<b title=\'title\'></b> <i title=title></i>'), '<b title="title"></b> <i title="title"></i>');
 		assert.strictEqual(rewriteHTML('<b title=\'title\'></b> <i title=title></i>'), '<b title="title"></b> <i title="title"></i>');
 	});
 
-	it('should secure embedded, recognized content when possible', function () {
+	it('secures embedded, recognized content when possible', function () {
 		assert.strictEqual(
 			rewriteHTML('<img src="http://37.media.tumblr.com/foo.png" alt="Interesting photo">'),
 			'<img src="https://37.media.tumblr.com/foo.png" alt="Interesting photo">');
@@ -46,7 +46,7 @@ describe('HTML rewriter', function (it) {
 			'<img src="https://41.media.tumblr.com/foo.png" alt="Interesting photo">');
 	});
 
-	it('shouldn’t double-encode, and should decode when possible', function () {
+	it('doesn’t double-encode, and decodes when possible', function () {
 		function attempt(entities, expected) {
 			assert.strictEqual(rewriteHTML('<span title="' + entities + '">' + entities + '</span>'), '<span title="' + expected + '">' + expected + '</span>');
 		}
@@ -56,15 +56,15 @@ describe('HTML rewriter', function (it) {
 		attempt('&#x1f60a;', '😊');
 	});
 
-	it('should convert insecure or unrecognized embedded content to links', function () {
+	it('converts insecure or unrecognized embedded content to links', function () {
 		assert.strictEqual(rewriteHTML('<img src="http://idioticimages.com/foo.gif">'), '<a href="http://idioticimages.com/foo.gif">[http://idioticimages.com/foo.gif]</a>');
 	});
 
-	it('should secure recognized links when possible', function () {
+	it('secures recognized links when possible', function () {
 		assert.strictEqual(rewriteHTML('<a href="http://imgur.com/">Image hosting</a>'), '<a href="https://imgur.com/">Image hosting</a>');
 	});
 
-	it('should rewrite Tumblr blog links to Splash links', function () {
+	it('rewrites Tumblr blog links to Splash links', function () {
 		assert.strictEqual(
 			rewriteHTML('<a href="http://staff.tumblr.com/">External blog link</a>'),
 			'<a href="/blog/staff/">External blog link</a>');
