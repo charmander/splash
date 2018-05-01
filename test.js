@@ -1,10 +1,9 @@
 'use strict';
 
-const Bluebird = require('bluebird');
 const assert = require('assert');
+const describe = require('@charmander/test/describe')(module);
 
 const clean = require('./splash/clean');
-const descriptions = [];
 
 const rewriteHTML = html =>
 	clean.rewriteHTML(html, 'staff')._html;
@@ -90,47 +89,4 @@ describe('HTML rewriter', function (it) {
 			rewriteHTML('<a href="/page">Internal link</a>'),
 			'<a href="https://staff.tumblr.com/page">Internal link</a>');
 	});
-});
-
-function id(x) {
-	return x;
-}
-
-function describe(described, description) {
-	descriptions.push(function () {
-		const promises = [];
-
-		description(function it(behaviour, test) {
-			const p = new Bluebird(function (resolve) {
-				resolve(test());
-			}).catch(id);
-
-			p.name = behaviour;
-			promises.push(p);
-		});
-
-		return Bluebird.all(promises).then(function (results) {
-			return results.reduce(function (allPassing, result, i) {
-				const p = promises[i];
-
-				if (result instanceof Error) {
-					console.log('\x1b[31m✘\x1b[0m \x1b[1m%s %s\x1b[0m failed\n%s', described, p.name, result.stack);
-					return false;
-				}
-
-				console.log('\x1b[32m✔\x1b[0m \x1b[1m%s %s\x1b[0m passed', described, p.name);
-				return allPassing;
-			}, true);
-		});
-	});
-}
-
-descriptions.reduce(function (first, second) {
-	return first.then(function (allPassed) {
-		return second().then(function (passed) {
-			return allPassed && passed;
-		});
-	});
-}, Bluebird.resolve(true)).done(function (allPassed) {
-	process.exit(!allPassed);
 });

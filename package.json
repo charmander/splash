@@ -6,7 +6,8 @@
 		"he": "1.1.1"
 	},
 	"devDependencies": {
-		"@charmander/eslint-config-base": "1.1.0"
+		"@charmander/eslint-config-base": "1.1.0",
+		"@charmander/test": "0.3.0"
 	},
 	"scripts": {
 		"test": "node test"
