@@ -55,7 +55,7 @@ const httpsDomains = [
 ];
 
 const TUMBLR_DOMAIN = /^[\w-]+\.tumblr\.com$/i;
-const TUMBLR_COMPATIBLE_PATH = /^\/(?:post\/\d+(?:\/|$))?/;
+const TUMBLR_COMPATIBLE_PATH = /^\/(?:$|post\/\d+(?:\/|$)|tagged\/.)/;
 const TUMBLR_MEDIA = /^(?:\d+\.)?media\.tumblr\.com$/;
 const TUMBLR_AUDIO = /^\/audio_file\/[^/]+\/\d+\/(tumblr_[a-zA-Z\d]+)$/;
 
@@ -72,15 +72,18 @@ const blogPath = (name, pathname = '/') =>
 	'/blog/' + stripSuffix(name, '.tumblr.com') + pathname;
 
 function rewriteLink(uriInfo, baseDomain) {
+	if (baseDomain == null) {
+		throw new Error('Base domain is required');
+	}
+
 	if (uriInfo.port !== null) {
 		return uriInfo;
 	}
 
-	const hostname = uriInfo.hostname;
 	const pathname = uriInfo.pathname;
 	let match;
 
-	if (hostname === 'www.tumblr.com' && (match = TUMBLR_AUDIO.exec(pathname))) {
+	if (uriInfo.hostname === 'www.tumblr.com' && (match = TUMBLR_AUDIO.exec(pathname))) {
 		uriInfo.protocol = 'https:';
 		uriInfo.hostname = 'a.tumblr.com';
 		uriInfo.host = null;
@@ -90,10 +93,18 @@ function rewriteLink(uriInfo, baseDomain) {
 		return uriInfo;
 	}
 
-	if (uriInfo.protocol !== 'http:' && uriInfo.protocol !== 'https:') {
-		// TODO: blog-relative paths where uriInfo.protocol is null
+	if (uriInfo.protocol === null && uriInfo.pathname !== null) {
+		uriInfo.protocol = 'https:';
+		uriInfo.hostname =
+			baseDomain.includes('.') ?
+				baseDomain :
+				baseDomain + '.tumblr.com';
+		uriInfo.host = null;
+	} else if (uriInfo.protocol !== 'http:' && uriInfo.protocol !== 'https:') {
 		return uriInfo;
 	}
+
+	const hostname = uriInfo.hostname;
 
 	if (httpsDomains.indexOf(hostname) !== -1) {
 		uriInfo.protocol = 'https:';
@@ -103,7 +114,7 @@ function rewriteLink(uriInfo, baseDomain) {
 	} else {
 		const isTumblrDomain =
 			TUMBLR_DOMAIN.test(hostname) ||
-			(baseDomain !== null && baseDomain === hostname);
+			baseDomain === hostname;
 
 		if (isTumblrDomain && TUMBLR_COMPATIBLE_PATH.test(pathname)) {
 			uriInfo.pathname = blogPath(hostname, pathname);
@@ -196,7 +207,7 @@ function rewriteHTML(html, baseDomain) {
 				return;
 			}
 
-			output += '<' + name + cleanAttributes(name, attributes) + '>';
+			output += '<' + name + cleanAttributes(name, attributes, baseDomain) + '>';
 
 			if (templateUtilities.voidTags.indexOf(name) === -1) {
 				open.push(name);

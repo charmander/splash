@@ -7,7 +7,7 @@ const clean = require('./splash/clean');
 const descriptions = [];
 
 const rewriteHTML = html =>
-	clean.rewriteHTML(html)._html;
+	clean.rewriteHTML(html, 'staff')._html;
 
 describe('HTML rewriter', function (it) {
 	it('retains safe HTML', function () {
@@ -82,7 +82,13 @@ describe('HTML rewriter', function (it) {
 			'<a href="https://api.tumblr.com/">Tumblr API link</a>');
 		assert.strictEqual(
 			rewriteHTML('<a href="/tagged/example">Internal link</a>'),
-			'TODO');
+			'<a href="/blog/staff/tagged/example">Internal link</a>');
+	});
+
+	it('rewrites unrecognized internal links to the original blog', function () {
+		assert.strictEqual(
+			rewriteHTML('<a href="/page">Internal link</a>'),
+			'<a href="https://staff.tumblr.com/page">Internal link</a>');
 	});
 });
 
