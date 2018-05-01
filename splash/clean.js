@@ -6,7 +6,7 @@ const he = require('he');
 const { Markup } = require('razorleaf');
 const templateUtilities = require('razorleaf/utilities');
 
-const safeElements = [
+const safeElements = new Set([
 	'section', 'nav', 'article', 'aside',
 	'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
 	'header', 'footer',
@@ -20,19 +20,26 @@ const safeElements = [
 	'span', 'br', 'wbr',
 	'ins', 'del',
 	'table', 'caption', 'tbody', 'thead', 'tfoot', 'tr', 'td', 'th',
-];
+]);
 
-const safeAttributes = {
-	_global: ['title', 'dir', 'lang'],
-	data: ['value'],
-	img: ['alt', 'longdesc'],
-	ol: ['type', 'start'],
-	ul: ['type'],
-	time: ['datetime'],
-};
+const globalSafeAttributes = new Set(['title', 'dir', 'lang']);
+
+const elementSafeAttributes = new Map([
+	['data', new Set(['value'])],
+	['img', new Set(['alt', 'longdesc'])],
+	['ol', new Set(['type', 'start'])],
+	['ul', new Set(['type'])],
+	['time', new Set(['datetime'])],
+]);
+
+const emptySet = new Set();
+
+const isSafeAttribute = (element, attribute) =>
+	globalSafeAttributes.has(attribute) ||
+	(elementSafeAttributes.get(element) || emptySet).has(attribute);
 
 // Adapted from https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml
-const safeProtocols = [
+const safeProtocols = new Set([
 	// Common
 	null, 'ftp:', 'http:', 'https:', 'mailto:', 'sftp:', 'shttp:', 'ssh:',
 	// SCM
@@ -44,24 +51,23 @@ const safeProtocols = [
 	// Miscellaneous
 	'bitcoin:', 'magnet:', 'maps:', 'news:', 'nntp:', 'rtsp:', 'snews:', 'steam:',
 	'telnet:', 'tv:', 'view-source:', 'ymsgr:', 'finger:', 'feed:',
-];
+]);
 
-const httpsDomains = [
+const httpsDomains = new Set([
 	'www.tumblr.com',
 	'api.tumblr.com',
 	'tumblr.com',
 	'imgur.com',
 	'i.imgur.com',
-];
+]);
 
 const TUMBLR_DOMAIN = /^[\w-]+\.tumblr\.com$/i;
 const TUMBLR_COMPATIBLE_PATH = /^\/(?:$|post\/\d+(?:\/|$)|tagged\/.)/;
 const TUMBLR_MEDIA = /^(?:\d+\.)?media\.tumblr\.com$/;
 const TUMBLR_AUDIO = /^\/audio_file\/[^/]+\/\d+\/(tumblr_[a-zA-Z\d]+)$/;
 
-function isSafeUri(uriInfo) {
-	return safeProtocols.indexOf(uriInfo.protocol) !== -1;
-}
+const isSafeUri = uriInfo =>
+	safeProtocols.has(uriInfo.protocol);
 
 const stripSuffix = (text, suffix) =>
 	suffix !== '' && text.endsWith(suffix) ?
@@ -71,7 +77,7 @@ const stripSuffix = (text, suffix) =>
 const blogPath = (name, pathname = '/') =>
 	'/blog/' + stripSuffix(name, '.tumblr.com') + pathname;
 
-function rewriteLink(uriInfo, baseDomain) {
+const rewriteLink = (uriInfo, baseDomain) => {
 	if (baseDomain == null) {
 		throw new Error('Base domain is required');
 	}
@@ -106,7 +112,7 @@ function rewriteLink(uriInfo, baseDomain) {
 
 	const hostname = uriInfo.hostname;
 
-	if (httpsDomains.indexOf(hostname) !== -1) {
+	if (httpsDomains.has(hostname)) {
 		uriInfo.protocol = 'https:';
 	} else if (TUMBLR_MEDIA.test(hostname)) {
 		uriInfo.protocol = 'https:';
@@ -126,43 +132,42 @@ function rewriteLink(uriInfo, baseDomain) {
 	}
 
 	return uriInfo;
-}
+};
 
-function rewriteLinkString(uri, baseDomain) {
-	return url.format(rewriteLink(url.parse(uri, false, true), baseDomain));
-}
+const rewriteLinkString = (uri, baseDomain) =>
+	url.format(rewriteLink(url.parse(uri, false, true), baseDomain));
 
-function cleanAttributes(name, attributes, baseDomain) {
-	return Object.keys(attributes).map(function (attribute) {
+const getSafeValue = (element, attribute, value, baseDomain) => {
+	if (element === 'a' && attribute === 'href') {
+		const uriInfo = url.parse(value, false, true);
+
+		if (isSafeUri(uriInfo)) {
+			return url.format(rewriteLink(uriInfo, baseDomain));
+		}
+	} else if (isSafeAttribute(element, attribute)) {
+		return value;
+	}
+
+	return null;
+};
+
+const cleanAttributes = (name, attributes, baseDomain) =>
+	Object.keys(attributes).map(attribute => {
 		const value = attributes[attribute];
+		const safeValue = getSafeValue(name, attribute, value, baseDomain);
 
-		if (name === 'a' && attribute === 'href') {
-			const uriInfo = url.parse(value, false, true);
-
-			if (!isSafeUri(uriInfo)) {
-				return '';
-			}
-
-			return ' href="' + templateUtilities.escapeAttributeValue(url.format(rewriteLink(uriInfo, baseDomain))) + '"';
-		}
-
-		const safeElementAttributes = safeAttributes[name];
-
-		if (safeAttributes._global.indexOf(attribute) === -1 && (!safeElementAttributes || safeElementAttributes.indexOf(attribute) === -1)) {
-			return '';
-		}
-
-		return ' ' + attribute + '="' + templateUtilities.escapeAttributeValue(value) + '"';
+		return safeValue === null ?
+			'' :
+			' ' + attribute + '="' + templateUtilities.escapeAttributeValue(safeValue) + '"';
 	}).join('');
-}
 
-function rewriteHTML(html, baseDomain) {
+const rewriteHTML = (html, baseDomain) => {
 	let output = '';
 	const open = [];
 
 	const parser = new htmlparser.Parser({
-		onopentag: function (name, attributes) {
-			Object.keys(attributes).forEach(function (key) {
+		onopentag: (name, attributes) => {
+			Object.keys(attributes).forEach(key => {
 				const value = attributes[key];
 
 				if (value) {
@@ -180,7 +185,7 @@ function rewriteHTML(html, baseDomain) {
 					if (rewrittenUri.embeddable) {
 						output += '<img src="' + templateUtilities.escapeAttributeValue(url.format(rewrittenUri)) + '"' + cleanAttributes('img', attributes, baseDomain) + '>';
 					} else {
-						const linkable = open.indexOf('a') === -1;
+						const linkable = !open.includes('a');
 
 						if (linkable) {
 							output += '<a href="' + templateUtilities.escapeAttributeValue(url.format(rewrittenUri)) + '">';
@@ -203,7 +208,7 @@ function rewriteHTML(html, baseDomain) {
 				return;
 			}
 
-			if (safeElements.indexOf(name) === -1) {
+			if (!safeElements.has(name)) {
 				return;
 			}
 
@@ -213,10 +218,10 @@ function rewriteHTML(html, baseDomain) {
 				open.push(name);
 			}
 		},
-		ontext: function (text) {
+		ontext: text => {
 			output += templateUtilities.escapeContent(he.decode(text));
 		},
-		onclosetag: function (name) {
+		onclosetag: name => {
 			if (open[open.length - 1] === name) {
 				output += '</' + name + '>';
 				open.pop();
@@ -227,9 +232,11 @@ function rewriteHTML(html, baseDomain) {
 	parser.end(html);
 
 	return Markup.unsafe(output);
-}
+};
 
-exports.blogPath = blogPath;
-exports.rewriteLink = rewriteLink;
-exports.rewriteLinkString = rewriteLinkString;
-exports.rewriteHTML = rewriteHTML;
+module.exports = {
+	blogPath,
+	rewriteLink,
+	rewriteLinkString,
+	rewriteHTML,
+};

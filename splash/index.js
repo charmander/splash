@@ -13,27 +13,26 @@ const templates = require('./templates');
 const config = require('../config');
 const consumerKey = config.api.consumer_key;
 
-function getAsync(url) {
-	return new Bluebird(function (resolve, reject) {
+const getAsync = url =>
+	new Bluebird((resolve, reject) => {
 		https.get(url, resolve)
 			.on('error', reject);
 	});
-}
 
-function getJSON(url) {
-	return getAsync(url).then(function (response) {
+const getJSON = url =>
+	getAsync(url).then(response => {
 		if (response.statusCode !== 200) {
 			return Bluebird.reject(new Error(`Unexpected status code: ${response.statusCode}`));
 		}
 
 		const bodyParts = [];
 
-		response.on('data', function (part) {
+		response.on('data', part => {
 			bodyParts.push(part);
 		});
 
-		return new Bluebird(function (resolve, reject) {
-			response.on('end', function () {
+		return new Bluebird((resolve, reject) => {
+			response.on('end', () => {
 				const body = Buffer.concat(bodyParts).toString('utf8');
 				const data = JSON.parse(body);
 
@@ -47,15 +46,14 @@ function getJSON(url) {
 			response.on('error', reject);
 		});
 	});
-}
 
-function viewPost(params, request, response) {
+const viewPost = (params, request, response) => {
 	const url = util.format(
 		'https://api.tumblr.com/v2/blog/%s/posts?id=%s&reblog_info=true&notes_info=true&api_key=%s',
 		params.name, params.id, consumerKey
 	);
 
-	function success(data) {
+	const success = data => {
 		const apiResponse = data.response;
 		apiResponse.name = params.name;
 		apiResponse.domain = URL.parse(apiResponse.blog.url).hostname;
@@ -63,18 +61,18 @@ function viewPost(params, request, response) {
 
 		response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
 		response.end(templates.blog(apiResponse));
-	}
+	};
 
-	function failure(error) {
+	const failure = error => {
 		response.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
 		response.end('The Tumblr API request failed.');
 		console.error(error);
-	}
+	};
 
 	getJSON(url).done(success, failure);
-}
+};
 
-function viewBlog(params, request, response) {
+const viewBlog = (params, request, response) => {
 	const offset = request.query.offset | 0;
 
 	const query = {
@@ -92,7 +90,7 @@ function viewBlog(params, request, response) {
 		params.name, qs.stringify(query)
 	);
 
-	function success(data) {
+	const success = data => {
 		const apiResponse = data.response;
 		apiResponse.limit = 20;
 		apiResponse.offset = offset;
@@ -102,16 +100,16 @@ function viewBlog(params, request, response) {
 
 		response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
 		response.end(templates.blog(apiResponse));
-	}
+	};
 
-	function failure(error) {
+	const failure = error => {
 		response.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
 		response.end('The Tumblr API request failed.');
 		console.error(error);
-	}
+	};
 
 	getJSON(url).done(success, failure);
-}
+};
 
 const routes = [
 	match(['GET', 'blog', bind('name')], viewBlog),
@@ -121,7 +119,7 @@ const routes = [
 	match(['GET', 'blog', bind('name'), 'post', bind('id')], viewPost),
 ];
 
-function serve(request, response) {
+const serve = (request, response) => {
 	let requestHost = request.headers.host;
 
 	if (requestHost !== undefined) {
@@ -162,7 +160,7 @@ function serve(request, response) {
 
 	response.writeHead(404, { 'Content-Type': 'text/plain' });
 	response.end('Not found.');
-}
+};
 
 {
 	const server = http.createServer(serve);
@@ -179,7 +177,7 @@ function serve(request, response) {
 		console.error(`ready at ${where}`);
 	});
 
-	process.once('SIGINT', function () {
+	process.once('SIGINT', () => {
 		console.error('Shutting down…');
 		server.close();
 	});

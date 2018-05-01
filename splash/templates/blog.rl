@@ -204,7 +204,7 @@ doctype html
 
 						div class: "post-stats"
 							if post.note_count
-								span class: "note-count" "#{s(post.note_count, '%d note', '%d notes')}"
+								span class: "note-count" "#{pluralize(post.note_count, '%d note', '%d notes')}"
 
 						if post.notes
 							ul class: "post-notes"
@@ -218,8 +218,7 @@ doctype html
 										" from "
 										a href: "#{rewriteLinkString(note.blog_url)}" "#{note.blog_name}"
 
-		% const offset = data.offset;
-		% const limit = data.limit;
+		% const {offset, limit} = data;
 		% const prev = offset > limit ? offset - limit : offset > 0 ? '' : null;
 		% const next = offset + data.posts.length < data.total_posts ? offset + data.posts.length : null;
 

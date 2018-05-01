@@ -1,20 +1,14 @@
 'use strict';
 
-const slice = Array.prototype.slice;
-
-function cons(head, tail) {
-	const result = slice.call(tail);
-	result.unshift(head);
-	return result;
+class Binding {
+	constructor(name) {
+		this.name = name;
+	}
 }
 
-function Binding(name) {
-	this.name = name;
-}
-
-function match(pattern, handler) {
+const match = (pattern, handler) => {
 	if (Array.isArray(pattern)) {
-		return function matcher(value) {
+		const matcher = value => {
 			if (value.length !== pattern.length) {
 				return false;
 			}
@@ -35,18 +29,18 @@ function match(pattern, handler) {
 				}
 			}
 
-			return function () {
-				return handler.apply(this, cons(bound, arguments));
-			};
+			return (...args) => handler(bound, ...args);
 		};
+
+		return matcher;
 	}
 
 	throw new TypeError('Cannot match against this pattern type.');
-}
+};
 
-function bind(name) {
-	return new Binding(name);
-}
+const bind = name => new Binding(name);
 
-exports.match = match;
-exports.bind = bind;
+module.exports = {
+	match,
+	bind,
+};
