@@ -9,6 +9,7 @@ const util = require('util');
 const qs = require('querystring');
 
 const {stylesheet} = require('./assets');
+const clean = require('./clean');
 const templates = require('./templates');
 const config = require('../config');
 const consumerKey = config.api.consumer_key;
@@ -111,12 +112,42 @@ const viewBlog = (params, request, response) => {
 	getJSON(url).done(success, failure);
 };
 
+const viewShortened = (params, request, response) => {
+	const code = encodeURIComponent(params.code);
+
+	const fallback = () => {
+		response.writeHead(303, { 'Location': 'https://tmblr.co/' + code });
+		response.end();
+	};
+
+	https.request({
+		method: 'HEAD',
+		hostname: 'tmblr.co',
+		path: '/' + code,
+	}, tumblrResponse => {
+		if (tumblrResponse.statusCode !== 302 || !('location' in tumblrResponse.headers)) {
+			console.error('Unexpected HTTP %i with headers %O from tmblr.co', tumblrResponse.statusCode, tumblrResponse.headers);
+			fallback();
+			return;
+		}
+
+		response.writeHead(301, { 'Location': clean.rewriteLinkString(tumblrResponse.headers.location, 'tmblr.co') });
+		response.end();
+	})
+		.on('error', error => {
+			console.error(error);
+			fallback();
+		})
+		.end();
+};
+
 const routes = [
 	match(['GET', 'blog', bind('name')], viewBlog),
 	match(['GET', 'blog', bind('name'), ''], viewBlog),
 	match(['GET', 'blog', bind('name'), 'tagged', bind('tag')], viewBlog),
 	match(['GET', 'blog', bind('name'), 'post', bind('id'), bind('slug')], viewPost),
 	match(['GET', 'blog', bind('name'), 'post', bind('id')], viewPost),
+	match(['GET', 'tmblr', bind('code')], viewShortened),
 ];
 
 const serve = (request, response) => {

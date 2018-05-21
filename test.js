@@ -43,6 +43,9 @@ describe('HTML rewriter', it => {
 		assert.strictEqual(
 			rewriteHTML('<img src="https://41.media.tumblr.com/foo.png" alt="Interesting photo">'),
 			'<img src="https://41.media.tumblr.com/foo.png" alt="Interesting photo">');
+		assert.strictEqual(
+			rewriteHTML('<img src="//41.media.tumblr.com/foo.png" alt="Interesting photo">'),
+			'<img src="https://41.media.tumblr.com/foo.png" alt="Interesting photo">');
 	});
 
 	it('doesn’t double-encode, and decodes when possible', () => {
@@ -70,6 +73,12 @@ describe('HTML rewriter', it => {
 			rewriteHTML('<a href="http://staff.tumblr.com/">External blog link</a>'),
 			'<a href="/blog/staff/">External blog link</a>');
 		assert.strictEqual(
+			rewriteHTML('<a href="https://staff.tumblr.com/">External blog link</a>'),
+			'<a href="/blog/staff/">External blog link</a>');
+		assert.strictEqual(
+			rewriteHTML('<a href="//staff.tumblr.com/">External blog link</a>'),
+			'<a href="/blog/staff/">External blog link</a>');
+		assert.strictEqual(
 			rewriteHTML('<a href="http://staff.tumblr.com/post/69608789310">External post link</a>'),
 			'<a href="/blog/staff/post/69608789310">External post link</a>');
 		assert.strictEqual(
@@ -90,5 +99,11 @@ describe('HTML rewriter', it => {
 		assert.strictEqual(
 			rewriteHTML('<a href="/page">Internal link</a>'),
 			'<a href="https://staff.tumblr.com/page">Internal link</a>');
+	});
+
+	it('rewrites shortened links', () => {
+		assert.strictEqual(
+			rewriteHTML('<a href="https://tmblr.co/mzHMrgAhIUiZyL-1AdtaNRA">Shortened link</a>'),
+			'<a href="/tmblr/mzHMrgAhIUiZyL-1AdtaNRA">Shortened link</a>');
 	});
 });

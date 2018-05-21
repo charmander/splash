@@ -65,6 +65,7 @@ const TUMBLR_DOMAIN = /^[\w-]+\.tumblr\.com$/i;
 const TUMBLR_COMPATIBLE_PATH = /^\/(?:$|post\/\d+(?:\/|$)|tagged\/.)/;
 const TUMBLR_MEDIA = /^(?:\d+\.)?media\.tumblr\.com$/;
 const TUMBLR_AUDIO = /^\/audio_file\/[^/]+\/\d+\/(tumblr_[a-zA-Z\d]+)$/;
+const TUMBLR_SHORTENED = /^\/([a-zA-Z0-9_-]+)$/;
 
 const isSafeUri = uriInfo =>
 	safeProtocols.has(uriInfo.protocol);
@@ -82,21 +83,28 @@ const rewriteLink = (uriInfo, baseDomain) => {
 		throw new Error('Base domain is required');
 	}
 
-	if (uriInfo.port !== null) {
+	if (uriInfo.protocol === null) {
+		if (uriInfo.hostname !== null) {
+			uriInfo.protocol = 'https:';
+		}
+	} else if (uriInfo.protocol !== 'http:' && uriInfo.protocol !== 'https:' || uriInfo.port !== null) {
 		return uriInfo;
 	}
 
 	const pathname = uriInfo.pathname;
-	let match;
 
-	if (uriInfo.hostname === 'www.tumblr.com' && (match = TUMBLR_AUDIO.exec(pathname))) {
-		uriInfo.protocol = 'https:';
-		uriInfo.hostname = 'a.tumblr.com';
-		uriInfo.host = null;
-		uriInfo.pathname = '/' + match[1] + 'o1.mp3';
-		uriInfo.path = null;
+	{
+		let match;
 
-		return uriInfo;
+		if (uriInfo.hostname === 'www.tumblr.com' && (match = TUMBLR_AUDIO.exec(pathname))) {
+			uriInfo.protocol = 'https:';
+			uriInfo.hostname = 'a.tumblr.com';
+			uriInfo.host = null;
+			uriInfo.pathname = '/' + match[1] + 'o1.mp3';
+			uriInfo.path = null;
+
+			return uriInfo;
+		}
 	}
 
 	if (uriInfo.protocol === null && uriInfo.pathname !== null) {
@@ -106,7 +114,16 @@ const rewriteLink = (uriInfo, baseDomain) => {
 				baseDomain :
 				baseDomain + '.tumblr.com';
 		uriInfo.host = null;
-	} else if (uriInfo.protocol !== 'http:' && uriInfo.protocol !== 'https:') {
+	}
+
+	if (uriInfo.hostname === 'tmblr.co') {
+		let match;
+
+		if ((match = TUMBLR_SHORTENED.exec(pathname))) {
+			return url.parse('/tmblr/' + match[1]);
+		}
+
+		uriInfo.protocol = 'https:';
 		return uriInfo;
 	}
 
