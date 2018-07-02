@@ -106,4 +106,10 @@ describe('HTML rewriter', it => {
 			rewriteHTML('<a href="https://tmblr.co/mzHMrgAhIUiZyL-1AdtaNRA">Shortened link</a>'),
 			'<a href="/tmblr/mzHMrgAhIUiZyL-1AdtaNRA">Shortened link</a>');
 	});
+
+	it('rewrites t.umblr.com redirects', () => {
+		assert.strictEqual(
+			rewriteHTML('<a href="https://t.umblr.com/redirect?z=http%3A%2F%2Fexample.com%2F&amp;t=ZmQxYTU3YWIwMGRhYzAyNjkzMjIzNTA4MDg5ODBkZjhkODQ2NTA3NixEU05ickYxeg%3D%3D&amp;b=t%3AwRDLUrtjPvazjQjQuAr2Yg&amp;p=post-link&amp;m=1">Shortened link</a>'),
+			'<a href="http://example.com/">Shortened link</a>');
+	});
 });

@@ -1,5 +1,7 @@
 'use strict';
 
+const assert = require('assert');
+const querystring = require('querystring');
 const url = require('url');
 const htmlparser = require('htmlparser2');
 const he = require('he');
@@ -79,7 +81,11 @@ const blogPath = (name, pathname = '/') =>
 	'/blog/' + stripSuffix(name, '.tumblr.com') + pathname;
 
 const rewriteLink = (uriInfo, baseDomain) => {
-	if (baseDomain == null) {
+	if (!(uriInfo instanceof url.Url)) {
+		throw new TypeError('uriInfo should be a url.Url');
+	}
+
+	if (baseDomain === undefined) {
 		throw new Error('Base domain is required');
 	}
 
@@ -89,6 +95,22 @@ const rewriteLink = (uriInfo, baseDomain) => {
 		}
 	} else if (uriInfo.protocol !== 'http:' && uriInfo.protocol !== 'https:' || uriInfo.port !== null) {
 		return uriInfo;
+	}
+
+	if (uriInfo.hostname === 't.umblr.com' && uriInfo.pathname === '/redirect') {
+		let params = uriInfo.query;
+
+		if (typeof params === 'string') {
+			params = querystring.parse(params);
+		}
+
+		if (typeof params.z === 'string') {
+			const target = url.parse(params.z, false, true);
+
+			if (target.hostname !== null && isSafeUri(target)) {
+				return rewriteLink(target, null);
+			}
+		}
 	}
 
 	const pathname = uriInfo.pathname;
@@ -107,7 +129,12 @@ const rewriteLink = (uriInfo, baseDomain) => {
 		}
 	}
 
-	if (uriInfo.protocol === null && uriInfo.pathname !== null) {
+	if (uriInfo.protocol === null) {
+		if (uriInfo.pathname === null) {
+			return uriInfo;
+		}
+
+		assert(uriInfo.hostname === null);
 		uriInfo.protocol = 'https:';
 		uriInfo.hostname =
 			baseDomain.includes('.') ?
@@ -115,6 +142,8 @@ const rewriteLink = (uriInfo, baseDomain) => {
 				baseDomain + '.tumblr.com';
 		uriInfo.host = null;
 	}
+
+	assert(uriInfo.hostname !== null);
 
 	if (uriInfo.hostname === 'tmblr.co') {
 		let match;
