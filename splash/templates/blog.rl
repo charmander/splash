@@ -200,7 +200,7 @@ doctype html
 
 						ul class: "post-tags"
 							for tag of post.tags
-								li "##{tag}"
+								li a rel: "tag" href: "/blog/#{data.name}/tagged/#{encodeURIComponent(tag)}" "##{tag}"
 
 						div class: "post-stats"
 							if post.note_count

@@ -186,7 +186,6 @@ body {
 }
 
 .post .post-tags {
-	color: #666;
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -195,6 +194,11 @@ body {
 .post .post-tags li {
 	display: inline-block;
 	margin-right: 0.7em;
+}
+
+.post .post-tags a {
+	color: #666;
+	text-decoration: none;
 }
 
 .post-alternates {
