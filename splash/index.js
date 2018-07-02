@@ -4,7 +4,7 @@ const Bluebird = require('bluebird');
 const http = require('http');
 const https = require('https');
 const {match, bind} = require('./match');
-const URL = require('url');
+const urlParse = require('url').parse;
 const util = require('util');
 const qs = require('querystring');
 
@@ -57,7 +57,7 @@ const viewPost = (params, request, response) => {
 	const success = data => {
 		const apiResponse = data.response;
 		apiResponse.name = params.name;
-		apiResponse.domain = URL.parse(apiResponse.blog.url).hostname;
+		apiResponse.domain = urlParse(apiResponse.blog.url).hostname;
 		apiResponse.pageUri = request.uri;
 
 		response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -96,7 +96,7 @@ const viewBlog = (params, request, response) => {
 		apiResponse.limit = 20;
 		apiResponse.offset = offset;
 		apiResponse.name = params.name;
-		apiResponse.domain = URL.parse(apiResponse.blog.url).hostname;
+		apiResponse.domain = urlParse(apiResponse.blog.url).hostname;
 		apiResponse.pageUri = request.uri;
 
 		response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -174,7 +174,7 @@ const serve = (request, response) => {
 		return;
 	}
 
-	const uri = URL.parse(request.url, true);
+	const uri = urlParse(request.url, true);
 	const parts = [request.method].concat(uri.pathname.split('/').slice(1).map(decodeURIComponent));
 
 	request.uri = uri;
