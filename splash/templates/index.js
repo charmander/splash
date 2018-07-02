@@ -4,7 +4,7 @@ const assert = require('assert');
 const url = require('url');
 const { inspect, format } = require('util');
 const { Markup } = require('razorleaf');
-const { DirectoryLoader } = require('razorleaf/directory-loader');
+const DirectoryLoader = require('razorleaf/directory-loader');
 const clean = require('../clean');
 const { stylesheet } = require('../assets');
 
