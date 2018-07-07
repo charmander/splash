@@ -1,0 +1,43 @@
+html {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	min-height: 100%;
+}
+
+body {
+	background-color: #2c4762;
+	color: white;
+	font-family: sans-serif;
+	line-height: 1.6;
+	margin: 1em;
+	max-width: 80ch;
+	text-align: center;
+}
+
+p {
+	color: rgba(255, 255, 255, 0.8);
+}
+
+p .main {
+	color: white;
+}
+
+a {
+	color: #9cf;
+}
+
+.blog-ref {
+	background-color: white;
+	border-radius: 2px;
+	color: black;
+	display: inline-block;
+	padding: 1em;
+	text-decoration: none;
+}
+
+.blog-ref img {
+	border: none;
+	margin-right: 1ch;
+	vertical-align: middle;
+}

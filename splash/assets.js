@@ -26,5 +26,8 @@ const readResourceSync = (resourcePath, encoding) =>
 	);
 
 module.exports = {
-	stylesheet: readResourceSync('css/blog.css'),
+	stylesheets: {
+		blog: readResourceSync('css/blog.css'),
+		notFound: readResourceSync('css/not-found.css'),
+	},
 };

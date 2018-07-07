@@ -1,6 +1,7 @@
 'use strict';
 
 const Bluebird = require('bluebird');
+const dns = require('dns');
 const http = require('http');
 const https = require('https');
 const {match, bind} = require('./match');
@@ -20,9 +21,73 @@ const getAsync = url =>
 			.on('error', reject);
 	});
 
+const FRONTING_BLOG = 'staff.tumblr.com';
+
+const lookupTumblr = (hostname, options, callback) => {
+	dns.lookup(FRONTING_BLOG, options, callback);
+};
+
+const getDomain = name =>
+	name.includes('.') ?
+		name :
+		name + '.tumblr.com';
+
+/**
+ * Determine whether a blog with a given domain exists, even if it’s hidden from guests, without making a DNS request for the domain or exposing it in SNI.
+ */
+const blogExists = name =>
+	new Bluebird((resolve, reject) => {
+		https.request({
+			hostname: getDomain(name),
+			method: 'HEAD',
+			servername: FRONTING_BLOG,
+			lookup: lookupTumblr,
+		}, response => {
+			switch (response.statusCode) {
+			case 404:
+				resolve(false);
+				break;
+
+			case 302:
+			case 200:
+				resolve(true);
+				break;
+
+			default:
+				reject(new Error(`Unexpected status code ${response.statusCode} while checking blog existence`));
+			}
+		})
+			.once('error', reject)
+			.end();
+	});
+
+const blogVisible = name =>
+	new Bluebird((resolve, reject) => {
+		https.request({
+			hostname: 'api.tumblr.com',
+			method: 'HEAD',
+			path: `/v2/blog/${name}/info?api_key=${consumerKey}`,
+		}, response => {
+			switch (response.statusCode) {
+			case 404:
+				resolve(false);
+				break;
+
+			case 200:
+				resolve(true);
+				break;
+
+			default:
+				reject(new Error(`Unexpected status code ${response.statusCode} while checking blog visibility`));
+			}
+		})
+			.on('error', reject)
+			.end();
+	});
+
 const getJSON = url =>
 	getAsync(url).then(response => {
-		if (response.statusCode !== 200) {
+		if (![200, 404].includes(response.statusCode)) {
 			return Bluebird.reject(new Error(`Unexpected status code: ${response.statusCode}`));
 		}
 
@@ -48,6 +113,35 @@ const getJSON = url =>
 		});
 	});
 
+const notFound = (request, response, name, isPost, original) => {
+	const infoP =
+		(isPost ? blogVisible(name) : Bluebird.resolve(false))
+			.then(visible => {
+				if (visible) {
+					return { checked: true, exists: true, visible: true };
+				}
+
+				return blogExists(name).then(exists =>
+					({ checked: true, exists, visible: false })
+				);
+			})
+			.catch(() => ({ checked: false }));
+
+	infoP.done(info => {
+		info = Object.assign({
+			name,
+			domain: getDomain(name),
+			original,
+		}, info);
+
+		response.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+		response.end(templates.notFound(info));
+	});
+};
+
+const isNotFound = error =>
+	'meta' in error && error.meta.status === 404;
+
 const viewPost = (params, request, response) => {
 	const url = util.format(
 		'https://api.tumblr.com/v2/blog/%s/posts?id=%s&reblog_info=true&notes_info=true&api_key=%s',
@@ -70,7 +164,19 @@ const viewPost = (params, request, response) => {
 		console.error(error);
 	};
 
-	getJSON(url).done(success, failure);
+	getJSON(url)
+		.then(success)
+		.catch(isNotFound, () => {
+			let original = `https://${getDomain(params.name)}/posts/${params.id}`;
+
+			if (params.slug) {
+				original += '/' + encodeURIComponent(params.slug);
+			}
+
+			return notFound(request, response, params.name, true, original);
+		})
+		.catch(failure)
+		.done();
 };
 
 const viewBlog = (params, request, response) => {
@@ -109,7 +215,15 @@ const viewBlog = (params, request, response) => {
 		console.error(error);
 	};
 
-	getJSON(url).done(success, failure);
+	getJSON(url)
+		.then(success)
+		.catch(isNotFound, () => {
+			const original = `https://${getDomain(params.name)}/`;
+
+			return notFound(request, response, params.name, false, original);
+		})
+		.catch(failure)
+		.done();
 };
 
 const viewShortened = (params, request, response) => {
@@ -150,6 +264,13 @@ const routes = [
 	match(['GET', 'tmblr', bind('code')], viewShortened),
 ];
 
+const styleSrc =
+	// TODO: Object.values after support for Node 6 ends
+	Object.keys(stylesheets)
+		.map(key => stylesheets[key])
+		.map(resource => "'" + resource.integrity + "'")
+		.join(' ');
+
 const serve = (request, response) => {
 	let requestHost = request.headers.host;
 
@@ -163,7 +284,7 @@ const serve = (request, response) => {
 
 	response.setHeader(
 		'Content-Security-Policy',
-		`default-src 'none'; style-src '${stylesheet.integrity}'; img-src https://api.tumblr.com https://*.media.tumblr.com; media-src https://vtt.tumblr.com; form-action 'none'; frame-ancestors 'none'`
+		`default-src 'none'; style-src ${styleSrc}; img-src https://api.tumblr.com https://*.media.tumblr.com; media-src https://vtt.tumblr.com; form-action 'none'; frame-ancestors 'none'`
 	);
 	response.setHeader('Referrer-Policy', 'no-referrer');
 	response.setHeader('X-Content-Type-Options', 'nosniff');

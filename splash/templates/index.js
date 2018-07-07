@@ -6,9 +6,10 @@ const { inspect, format } = require('util');
 const { Markup } = require('razorleaf');
 const DirectoryLoader = require('razorleaf/directory-loader');
 const clean = require('../clean');
-const { stylesheet } = require('../assets');
+const { stylesheets } = require('../assets');
 
-assert(!stylesheet.content.includes('</'));
+assert(!stylesheets.blog.content.includes('</'));
+assert(!stylesheets.notFound.content.includes('</'));
 
 const pluralize = (quantity, singular, plural) =>
 	format(quantity === 1 ? singular : plural, quantity);
@@ -49,7 +50,9 @@ const relativeDate = date => {
 	return count + ' ' + (count === 1 ? unit : unit + 's') + ' ago';
 };
 
-const templateLoader = new DirectoryLoader(__dirname, {
+const templateLoader = new DirectoryLoader(__dirname);
+
+exports.blog = templateLoader.load('blog', {
 	globals: {
 		clean,
 		inspect,
@@ -57,8 +60,11 @@ const templateLoader = new DirectoryLoader(__dirname, {
 		relativeDate,
 		update,
 		url,
-		stylesheet: Markup.unsafe(stylesheet.content),
+		stylesheet: Markup.unsafe(stylesheets.blog.content),
 	},
 });
-
-exports.blog = templateLoader.load('blog');
+exports.notFound = templateLoader.load('not-found', {
+	globals: {
+		stylesheet: Markup.unsafe(stylesheets.notFound.content),
+	},
+});
