@@ -113,7 +113,10 @@ append html
 		const rewriteLinkString = l => clean.rewriteLinkString(l, data.domain);
 
 append head
-	title "#{data.blog.title || data.name} · splash"
+	title
+		if data.tag
+			"##{data.tag} · "
+		"#{data.blog.title || data.name} · splash"
 
 	style
 		!"#{stylesheet}"
