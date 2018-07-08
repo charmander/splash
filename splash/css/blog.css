@@ -32,12 +32,12 @@ body {
 
 #header {
 	margin: 2em 0.4em;
+	text-align: center;
 }
 
 #avatar {
 	border-radius: 2px;
-	display: block;
-	margin: 0 auto;
+	vertical-align: middle;
 }
 
 #title {
@@ -45,7 +45,6 @@ body {
 	font-size: 2.5em;
 	font-weight: 500;
 	margin: 0.3em 0;
-	text-align: center;
 }
 
 #title a {
@@ -60,7 +59,6 @@ body {
 	font-weight: normal;
 	margin: 0 auto;
 	max-width: 50rem;
-	text-align: center;
 }
 
 #description a {
