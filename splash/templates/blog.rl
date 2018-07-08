@@ -138,6 +138,17 @@ append body
 			!"#{rewriteHTML(data.blog.description)}"
 
 	main id: "posts"
+		if data.tag
+			div id: "tag-indicator"
+				"Browsing posts tagged "
+				svg width: "24" height: "16"
+					g fill: "white"
+						rect x: "8" y: "0" width: "16" height: "16" rx: "2"
+						rect x: "0" y: "0" width: "11.314" height: "11.314" rx: "2" transform: "translate(9 0) rotate(45)"
+						circle cx: "8" cy: "8" r: "3" fill: "#2c4762"
+				" "
+				strong "#{data.tag}"
+
 		for post of data.posts
 			% const date = new Date(post.timestamp * 1000);
 

@@ -102,6 +102,17 @@ body {
 	max-width: 50em;
 }
 
+#tag-indicator {
+	color: white;
+	opacity: 0.8;
+	font-size: 0.9em;
+	text-transform: lowercase;
+}
+
+#tag-indicator svg {
+	vertical-align: -3px;
+}
+
 .post {
 	background-color: white;
 	border-radius: 2px;

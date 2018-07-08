@@ -203,6 +203,7 @@ const viewBlog = (params, request, response) => {
 		apiResponse.offset = offset;
 		apiResponse.name = params.name;
 		apiResponse.domain = urlParse(apiResponse.blog.url).hostname;
+		apiResponse.tag = params.tag;
 		apiResponse.pageUri = request.uri;
 
 		response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
