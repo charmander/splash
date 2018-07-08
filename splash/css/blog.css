@@ -172,6 +172,10 @@ body {
 	margin: 0;
 }
 
+.post .post-photo {
+	margin: 0;
+}
+
 .post .post-photo img, .post .post-caption img {
 	height: auto;
 	max-width: 100%;

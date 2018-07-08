@@ -23,17 +23,16 @@ macro post-content(post, type, hasTrail)
 		!"#{rewriteHTML(post.answer)}"
 	elif type === 'photo'
 		for photo of post.photos
-			% const photoUrl = photo.original_size.url;
-			% const mediaLink = rewriteLink(url.parse(photoUrl, false, true));
-			% const photoInfo = photo.alt_sizes[0];
+			% const displaySize = photo.original_size;
+			% const mediaLink = rewriteLink(url.parse(displaySize.url, false, true));
 
 			if mediaLink.embeddable
 				figure class: "post-photo"
 					img
 						src: "#{url.format(mediaLink)}"
 						alt: "#{photo.caption}"
-						width: "#{photoInfo.width}"
-						height: "#{photoInfo.height}"
+						width: "#{displaySize.width}"
+						height: "#{displaySize.height}"
 
 					if photo.caption
 						figcaption
