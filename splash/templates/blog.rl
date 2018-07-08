@@ -156,16 +156,15 @@ append body
 			% const date = new Date(post.timestamp * 1000);
 
 			article class: "post"
-				header
-					if post.title
-						h2 class: "post-title"
-							if post.url
-								a href: "#{rewriteLinkString(post.url)}" "#{post.title}"
-							else
-								"#{post.title}"
-					elif post.url
-						h2 class: "post-title"
-							a href: "#{rewriteLinkString(post.url)}" "#{post.url}"
+				if post.title
+					header h2 class: "post-title"
+						if post.url
+							a href: "#{rewriteLinkString(post.url)}" "#{post.title}"
+						else
+							"#{post.title}"
+				elif post.url
+					header h2 class: "post-title"
+						a href: "#{rewriteLinkString(post.url)}" "#{post.url}"
 
 				% let {trail = []} = post;
 				% const root = post.reblogged_root_id;

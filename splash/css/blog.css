@@ -173,11 +173,17 @@ body {
 }
 
 .post .post-photo {
-	margin: 0;
+	margin: 1em -1em;
+}
+
+.post .post-photo:first-child {
+	margin-top: 0;
 }
 
 .post .post-photo img, .post .post-caption img {
+	display: block;
 	height: auto;
+	margin: 0 auto;
 	max-width: 100%;
 }
 
