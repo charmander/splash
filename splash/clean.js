@@ -8,6 +8,8 @@ const he = require('he');
 const { Markup } = require('razorleaf');
 const templateUtilities = require('razorleaf/utilities');
 
+const URL_INVALID = url.parse('javascript:;');
+
 const safeElements = new Set([
 	'section', 'nav', 'article', 'aside',
 	'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
@@ -135,6 +137,11 @@ const rewriteLink = (uriInfo, baseDomain) => {
 		}
 
 		assert(uriInfo.hostname === null);
+
+		if (baseDomain === null) {
+			return URL_INVALID;
+		}
+
 		uriInfo.protocol = 'https:';
 		uriInfo.hostname =
 			baseDomain.includes('.') ?

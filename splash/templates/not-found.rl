@@ -19,7 +19,7 @@ append head
 	style
 		!"#{stylesheet}"
 
-append body
+replace body
 	h1 "Not found"
 
 	if !data.checked

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+	<ShortName>Splash</ShortName>
+	<Description>View a Tumblr page in Splash</Description>
+	<Image height="16" width="16">data:image/svg+xml,&lt;?xml version='1.0'?&gt;&lt;svg width='16' height='16' version='1.1' xmlns='http://www.w3.org/2000/svg'&gt;&lt;g fill='%232c4762'&gt;&lt;path d='m8 0 4.686 4.686-9.373 0z'/&gt;&lt;circle cx='8' cy='9.373' r='6.627'/&gt;&lt;/g&gt;&lt;path d='m8.91 14c-1.41 0-2.45-0.713-2.45-2.42l0-2.74h-1.28v-1.48c1.41-.359 2-1.55 2.06-2.59h1.46v2.35h1.7v1.72h-1.7v2.38c0 .713.364.962.945.962h.828v1.81z' fill='white'/&gt;&lt;/svg&gt;</Image>
+	<Url type="text/html" template="##prefix##/?u={searchTerms}" />
+	<Query role="example" searchTerms="https://staff.tumblr.com/" />
+</OpenSearchDescription>

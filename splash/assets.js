@@ -28,5 +28,6 @@ module.exports = {
 	stylesheets: {
 		blog: readResourceSync('css/blog.css', 'utf8'),
 		notFound: readResourceSync('css/not-found.css', 'utf8'),
+		redirect: readResourceSync('css/redirect.css', 'utf8'),
 	},
 };

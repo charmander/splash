@@ -10,6 +10,7 @@ const { stylesheets } = require('../assets');
 
 assert(!stylesheets.blog.content.includes('</'));
 assert(!stylesheets.notFound.content.includes('</'));
+assert(!stylesheets.redirect.content.includes('</'));
 
 const pluralize = (quantity, singular, plural) =>
 	format(quantity === 1 ? singular : plural, quantity);
@@ -66,5 +67,10 @@ exports.blog = templateLoader.load('blog', {
 exports.notFound = templateLoader.load('not-found', {
 	globals: {
 		stylesheet: Markup.unsafe(stylesheets.notFound.content),
+	},
+});
+exports.redirect = templateLoader.load('redirect', {
+	globals: {
+		stylesheet: Markup.unsafe(stylesheets.redirect.content),
 	},
 });

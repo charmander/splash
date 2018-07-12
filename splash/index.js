@@ -2,10 +2,12 @@
 
 const Bluebird = require('bluebird');
 const dns = require('dns');
+const fs = require('fs');
 const http = require('http');
 const https = require('https');
 const {match, bind} = require('./match');
-const urlParse = require('url').parse;
+const path = require('path');
+const { parse: urlParse, format: urlFormat } = require('url');
 const util = require('util');
 const qs = require('querystring');
 
@@ -14,6 +16,10 @@ const clean = require('./clean');
 const templates = require('./templates');
 const config = require('../config');
 const consumerKey = config.api.consumer_key;
+
+const openSearchXML =
+	fs.readFileSync(path.join(__dirname, 'opensearch.xml'), 'utf8')
+		.replace(/##prefix##/g, config.prefix);
 
 const getAsync = url =>
 	new Bluebird((resolve, reject) => {
@@ -256,13 +262,51 @@ const viewShortened = (params, request, response) => {
 		.end();
 };
 
+const getOpenSearch = (params, request, response) => {
+	response.writeHead(200, { 'Content-Type': 'application/opensearchdescription+xml' });
+	response.end(openSearchXML);
+};
+
+const getRedirectForm = (params, request, response) => {
+	const query =
+		typeof request.query.u === 'string' ?
+			request.query.u.trim() || null :
+			null;
+
+	if (query !== null) {
+		const url = urlParse(
+			/^https?:/.test(query) ?
+				query :
+				'https://' + query,
+			false,
+			true
+		);
+
+		if (url.hostname !== null && !url.hostname.includes('.')) {
+			url.hostname = url.hostname + '.tumblr.com';
+		}
+
+		const rewritten = clean.rewriteLink(url, null);
+
+		if (rewritten.hostname === null && rewritten.pathname !== null) {
+			response.writeHead(303, { 'Location': urlFormat(rewritten) });
+			response.end();
+			return;
+		}
+	}
+
+	response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+	response.end(templates.redirect({ query }));
+};
+
 const routes = [
+	match(['GET'], getRedirectForm),
 	match(['GET', 'blog', bind('name')], viewBlog),
-	match(['GET', 'blog', bind('name'), ''], viewBlog),
 	match(['GET', 'blog', bind('name'), 'tagged', bind('tag')], viewBlog),
 	match(['GET', 'blog', bind('name'), 'post', bind('id'), bind('slug')], viewPost),
 	match(['GET', 'blog', bind('name'), 'post', bind('id')], viewPost),
 	match(['GET', 'tmblr', bind('code')], viewShortened),
+	match(['GET', 'opensearch.xml'], getOpenSearch),
 ];
 
 const styleSrc =
@@ -285,7 +329,7 @@ const serve = (request, response) => {
 
 	response.setHeader(
 		'Content-Security-Policy',
-		`default-src 'none'; style-src ${styleSrc}; img-src https://api.tumblr.com https://*.media.tumblr.com; media-src https://vtt.tumblr.com; form-action 'none'; frame-ancestors 'none'`
+		`default-src 'none'; style-src ${styleSrc}; img-src https://api.tumblr.com https://*.media.tumblr.com; media-src https://vtt.tumblr.com; form-action 'self'; frame-ancestors 'none'`
 	);
 	response.setHeader('Referrer-Policy', 'no-referrer');
 	response.setHeader('X-Content-Type-Options', 'nosniff');
@@ -298,6 +342,10 @@ const serve = (request, response) => {
 
 	const uri = urlParse(request.url, true);
 	const parts = [request.method].concat(uri.pathname.split('/').slice(1).map(decodeURIComponent));
+
+	if (parts[parts.length - 1] === '') {
+		parts.pop();
+	}
 
 	request.uri = uri;
 	request.query = uri.query;
