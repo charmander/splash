@@ -13,14 +13,14 @@ Requires [Node][] 6 or later.
 - Clone the repo:
 
     ```shellsession
-    ~$ git clone https://github.com/charmander/splash
-    ~$ cd splash
+    [user@host ~] $ git clone https://github.com/charmander/splash
+    [user@host ~] $ cd splash
     ```
 
 - Install dependencies:
 
     ```shellsession
-    ~/splash$ npm install
+    [user@host ~/splash] $ npm install
     ```
 
 - Install the included [Bree Serif Regular](fonts/bree-serif) (optional)
@@ -28,13 +28,13 @@ Requires [Node][] 6 or later.
 - Start the server:
 
     ```shellsession
-    ~/splash$ PORT=3000 node splash
+    [user@host ~/splash] $ PORT=3000 node splash
     ```
 
 - Add a hosts entry for `::1 splash`:
 
     ```shellsession
-    ~/splash$ echo '::1 splash' | sudo tee -a /etc/hosts
+    [user@host ~/splash] $ echo '::1 splash' | sudo tee -a /etc/hosts
     ```
 
 - Visit <http://splash:3000/blog/staff/>!
