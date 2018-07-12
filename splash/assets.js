@@ -7,9 +7,8 @@ const path = require('path');
 const addIntegrity = content => {
 	const digest =
 		crypto.createHash('sha256')
-			.update(content)
-			.digest('base64')
-			.replace('==', '');
+			.update(content, 'utf8')
+			.digest('base64');
 
 	return {
 		content,
