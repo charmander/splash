@@ -9,7 +9,7 @@ const urlParse = require('url').parse;
 const util = require('util');
 const qs = require('querystring');
 
-const {stylesheet} = require('./assets');
+const { stylesheets } = require('./assets');
 const clean = require('./clean');
 const templates = require('./templates');
 const config = require('../config');
