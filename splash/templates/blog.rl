@@ -52,9 +52,8 @@ macro post-content(post, type, hasTrail)
 		% const thumbnailLink = post.thumbnail_url && rewriteLink(url.parse(post.thumbnail_url, false, true));
 
 		% if (post.video_url)
-			figure
+			figure class: "post-video"
 				video
-					class: "post-video"
 					src: "#{post.video_url}"
 					type: "video/mp4"
 					preload: "none"
