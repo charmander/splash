@@ -187,6 +187,10 @@ body {
 	max-width: 100%;
 }
 
+.post .post-photo > figcaption {
+	margin: 1em;
+}
+
 .post .post-video {
 	margin: 1em -1em;
 }
