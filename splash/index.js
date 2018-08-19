@@ -286,7 +286,7 @@ const getRedirectForm = (params, request, response) => {
 			url.hostname = url.hostname + '.tumblr.com';
 		}
 
-		const rewritten = clean.rewriteLink(url, null);
+		const rewritten = clean.rewriteLink(url, url.hostname);
 
 		if (rewritten.hostname === null && rewritten.pathname !== null) {
 			response.writeHead(303, { 'Location': urlFormat(rewritten) });
