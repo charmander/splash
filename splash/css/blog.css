@@ -239,6 +239,25 @@ body {
 	text-transform: lowercase;
 }
 
+.image-container {
+	position: relative;
+}
+
+.image-wrapper {
+	bottom: 0;
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+.image-placeholder {
+	display: block;
+	height: auto;
+	max-width: 100%;
+	visibility: hidden;
+}
+
 #page-navigation {
 	display: flex;
 	margin: 1em auto;

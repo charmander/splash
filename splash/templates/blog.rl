@@ -28,11 +28,15 @@ macro post-content(post, type, hasTrail)
 
 			if mediaLink.embeddable
 				figure class: "post-photo"
-					img
-						src: "#{url.format(mediaLink)}"
-						alt: "#{photo.caption}"
-						width: "#{displaySize.width}"
-						height: "#{displaySize.height}"
+					div class: "image-container"
+						svg class: "image-placeholder" width: "#{displaySize.width}" height: "#{displaySize.height}"
+
+						div class: "image-wrapper"
+							img
+								src: "#{url.format(mediaLink)}"
+								alt: "#{photo.caption}"
+								width: "#{displaySize.width}"
+								height: "#{displaySize.height}"
 
 					if photo.caption
 						figcaption
