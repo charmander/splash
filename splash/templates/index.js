@@ -7,10 +7,13 @@ const { Markup } = require('razorleaf');
 const DirectoryLoader = require('razorleaf/directory-loader');
 const clean = require('../clean');
 const { stylesheets } = require('../assets');
+const config = require('../../config');
 
 assert(!stylesheets.blog.content.includes('</'));
 assert(!stylesheets.notFound.content.includes('</'));
 assert(!stylesheets.redirect.content.includes('</'));
+
+const { includeData } = config;
 
 const pluralize = (quantity, singular, plural) =>
 	format(quantity === 1 ? singular : plural, quantity);
@@ -56,6 +59,7 @@ const templateLoader = new DirectoryLoader(__dirname);
 exports.blog = templateLoader.load('blog', {
 	globals: {
 		clean,
+		includeData,
 		inspect,
 		pluralize,
 		relativeDate,

@@ -201,9 +201,10 @@ append body
 							"("
 							a href: "#{post.post_url}"
 								"original"
-							", "
-							a href: "data:text/plain;charset=utf-8,#{encodeURIComponent(inspect(post, { depth: null }))}"
-								"data"
+							if includeData
+								", "
+								a href: "data:text/plain;charset=utf-8,#{encodeURIComponent(inspect(post, { depth: null }))}"
+									"data"
 							")"
 
 
