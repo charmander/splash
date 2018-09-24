@@ -194,7 +194,7 @@ append body
 				footer class: "post-info"
 					div
 						a href: "#{rewriteLinkString(post.post_url)}" rel: "bookmark"
-							time class: "post-date" datetime: "#{date.toISOString()}" title: "#{date.toString()}" pubdate:
+							time class: "post-date" datetime: "#{date.toISOString()}" title: "#{date.toString()}"
 								"#{relativeDate(date)}"
 
 						" " span class: "post-alternates"
