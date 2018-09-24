@@ -1,6 +1,6 @@
 {
 	"dependencies": {
-		"bluebird": "3.5.1",
+		"bluebird": "3.5.2",
 		"razorleaf": "5.3.2",
 		"htmlparser2": "3.9.2",
 		"he": "1.2.0"
