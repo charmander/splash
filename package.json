@@ -3,7 +3,7 @@
 		"bluebird": "3.5.1",
 		"razorleaf": "5.3.2",
 		"htmlparser2": "3.9.2",
-		"he": "1.1.1"
+		"he": "1.2.0"
 	},
 	"devDependencies": {
 		"@charmander/eslint-config-base": "1.1.0",
