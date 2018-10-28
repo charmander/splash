@@ -342,7 +342,7 @@ const serve = (request, response) => {
 
 	response.setHeader(
 		'Content-Security-Policy',
-		`default-src 'none'; style-src ${styleSrc}; img-src https://api.tumblr.com https://*.media.tumblr.com; media-src https://a.tumblr.com https://ve.media.tumblr.com https://vtt.tumblr.com; form-action 'self'; frame-ancestors 'none'`
+		`default-src 'none'; style-src ${styleSrc}; img-src https://api.tumblr.com https://*.media.tumblr.com; media-src https://a.tumblr.com https://*.media.tumblr.com https://vtt.tumblr.com; form-action 'self'; frame-ancestors 'none'`
 	);
 	response.setHeader('Referrer-Policy', 'no-referrer');
 	response.setHeader('X-Content-Type-Options', 'nosniff');
