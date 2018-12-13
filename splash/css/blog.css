@@ -146,6 +146,7 @@ body {
 .post blockquote {
 	border-left: 0.2em solid #ddd;
 	margin-left: 0.4em;
+	margin-right: 0;
 	padding-left: 0.8em;
 }
 
