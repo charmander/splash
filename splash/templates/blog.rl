@@ -129,15 +129,14 @@ append body
 			span "NSFW"
 
 	header id: "header"
-		a href: "/blog/#{data.name}" rel: "index"
-			img id: "avatar"
-				src: "https://api.tumblr.com/v2/blog/#{data.name}/avatar/96"
-				alt: "#{data.name}’s avatar"
-				width: "96"
-				height: "96"
-
 		h1 id: "title"
-			a href: "/blog/#{data.name}/" rel: "index"
+			a href: "/blog/#{data.name}" rel: "index"
+				img id: "avatar"
+					src: "https://api.tumblr.com/v2/blog/#{data.name}/avatar/96"
+					alt: "#{data.name}’s avatar"
+					width: "96"
+					height: "96"
+
 				"#{data.blog.title || data.name}"
 
 		h2 id: "description"

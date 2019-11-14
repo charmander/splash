@@ -37,7 +37,7 @@ Requires [Node][] 6 or later.
     [user@host ~/splash] $ echo '::1 splash' | sudo tee -a /etc/hosts
     ```
 
-- Visit <http://splash:3000/blog/staff/>!
+- Visit <http://splash:3000/blog/staff>!
 
 
 TODO
