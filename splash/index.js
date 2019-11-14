@@ -140,13 +140,22 @@ const notFound = (request, response, name, isPost, original) => {
 			original,
 		}, info);
 
-		response.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+		response.statusCode = 404;
+		setHtml(response);
 		response.end(templates.notFound(info));
 	});
 };
 
 const isNotFound = error =>
 	'meta' in error && error.meta.status === 404;
+
+const setHtml = response => {
+	response.setHeader('Content-Type', 'text/html; charset=utf-8');
+};
+
+const setText = response => {
+	response.setHeader('Content-Type', 'text/plain; charset=utf-8');
+};
 
 const viewPost = (params, request, response) => {
 	const url = util.format(
@@ -160,14 +169,16 @@ const viewPost = (params, request, response) => {
 		apiResponse.domain = urlParse(apiResponse.blog.url).hostname;
 		apiResponse.pageUri = request.uri;
 
-		response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+		setHtml(response);
 		response.end(templates.blog(apiResponse));
 	};
 
 	const failure = error => {
-		response.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
-		response.end('The Tumblr API request failed.');
 		console.error(error);
+
+		response.statusCode = 500;
+		setText(response);
+		response.end('The Tumblr API request failed.');
 	};
 
 	getJSON(url)
@@ -212,14 +223,16 @@ const viewBlog = (params, request, response) => {
 		apiResponse.tag = params.tag;
 		apiResponse.pageUri = request.uri;
 
-		response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+		setHtml(response);
 		response.end(templates.blog(apiResponse));
 	};
 
 	const failure = error => {
-		response.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
-		response.end('The Tumblr API request failed.');
 		console.error(error);
+
+		response.statusCode = 500;
+		setText(response);
+		response.end('The Tumblr API request failed.');
 	};
 
 	getJSON(url)
@@ -295,7 +308,7 @@ const getRedirectForm = (params, request, response) => {
 		}
 	}
 
-	response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+	setHtml(response);
 	response.end(templates.redirect({ query }));
 };
 
@@ -335,7 +348,8 @@ const serve = (request, response) => {
 	response.setHeader('X-Content-Type-Options', 'nosniff');
 
 	if (requestHost !== config.host) {
-		response.writeHead(400, { 'Content-Type': 'text/plain' });
+		response.statusCode = 400;
+		setText(response);
 		response.end('Unexpected Host header');
 		return;
 	}
@@ -359,7 +373,8 @@ const serve = (request, response) => {
 		}
 	}
 
-	response.writeHead(404, { 'Content-Type': 'text/plain' });
+	response.statusCode = 404;
+	setText(response);
 	response.end('Not found.');
 };
 
