@@ -2,7 +2,8 @@ Splash
 ======
 
 Splash is a Tumblr web client. It aims to be secure and readable, and uses
-no JavaScript. It connects to `api.tumblr.com` over HTTPS, avoiding DNS leakage.
+no JavaScript. It connects to `api.tumblr.com` over HTTPS, keeping the names of
+Tumblr blogs being browsed out of DNS queries and SNI.
 
 
 Installation
