@@ -21,12 +21,6 @@ const openSearchXML =
 	fs.readFileSync(path.join(__dirname, 'opensearch.xml'), 'utf8')
 		.replace(/##prefix##/g, config.prefix);
 
-const getAsync = url =>
-	new Bluebird((resolve, reject) => {
-		https.get(url, resolve)
-			.on('error', reject);
-	});
-
 const FRONTING_BLOG = 'staff.tumblr.com';
 
 const lookupTumblr = (hostname, options, callback) => {
@@ -92,19 +86,24 @@ const blogVisible = name =>
 	});
 
 const getJSON = url =>
-	getAsync(url).then(response => {
-		if (![200, 404].includes(response.statusCode)) {
-			return Bluebird.reject(new Error(`Unexpected status code: ${response.statusCode}`));
-		}
+	new Bluebird((resolve, reject) => {
+		const request = https.get(url, response => {
+			if (![200, 404].includes(response.statusCode)) {
+				return Bluebird.reject(new Error(`Unexpected status code: ${response.statusCode}`));
+			}
 
-		const bodyParts = [];
+			const bodyParts = [];
 
-		response.on('data', part => {
-			bodyParts.push(part);
-		});
+			response.on('data', part => {
+				bodyParts.push(part);
+			});
 
-		return new Bluebird((resolve, reject) => {
 			response.on('end', () => {
+				if (!response.complete) {
+					reject(new Error('Incomplete response'));
+					return;
+				}
+
 				const body = Buffer.concat(bodyParts).toString('utf8');
 				const data = JSON.parse(body);
 
@@ -115,8 +114,11 @@ const getJSON = url =>
 				}
 			});
 
+			// TODO: is this even possible
 			response.on('error', reject);
 		});
+
+		request.on('error', reject);
 	});
 
 const notFound = (request, response, name, isPost, original) => {
