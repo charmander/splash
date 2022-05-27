@@ -1,6 +1,5 @@
 'use strict';
 
-const Bluebird = require('bluebird');
 const dns = require('dns');
 const fs = require('fs');
 const http = require('http');
@@ -36,7 +35,7 @@ const getDomain = name =>
  * Determine whether a blog with a given domain exists, even if it’s hidden from guests, without making a DNS request for the domain or exposing it in SNI.
  */
 const blogExists = name =>
-	new Bluebird((resolve, reject) => {
+	new Promise((resolve, reject) => {
 		https.request({
 			hostname: getDomain(name),
 			method: 'HEAD',
@@ -62,7 +61,7 @@ const blogExists = name =>
 	});
 
 const blogVisible = name =>
-	new Bluebird((resolve, reject) => {
+	new Promise((resolve, reject) => {
 		https.request({
 			hostname: 'api.tumblr.com',
 			method: 'HEAD',
@@ -86,10 +85,10 @@ const blogVisible = name =>
 	});
 
 const getJSON = url =>
-	new Bluebird((resolve, reject) => {
+	new Promise((resolve, reject) => {
 		const request = https.get(url, response => {
 			if (![200, 404].includes(response.statusCode)) {
-				return Bluebird.reject(new Error(`Unexpected status code: ${response.statusCode}`));
+				return Promise.reject(new Error(`Unexpected status code: ${response.statusCode}`));
 			}
 
 			const bodyParts = [];
@@ -123,7 +122,7 @@ const getJSON = url =>
 
 const notFound = (request, response, name, isPost, original) => {
 	const infoP =
-		(isPost ? blogVisible(name) : Bluebird.resolve(false))
+		(isPost ? blogVisible(name) : Promise.resolve(false))
 			.then(visible => {
 				if (visible) {
 					return { checked: true, exists: true, visible: true };
@@ -135,7 +134,7 @@ const notFound = (request, response, name, isPost, original) => {
 			})
 			.catch(() => ({ checked: false }));
 
-	infoP.done(info => {
+	infoP.then(info => {
 		info = Object.assign({
 			name,
 			domain: getDomain(name),
@@ -185,7 +184,11 @@ const viewPost = (params, request, response) => {
 
 	getJSON(url)
 		.then(success)
-		.catch(isNotFound, () => {
+		.catch(error => {
+			if (!isNotFound(error)) {
+				throw error;
+			}
+
 			let original = `https://${getDomain(params.name)}/posts/${params.id}`;
 
 			if (params.slug) {
@@ -194,8 +197,7 @@ const viewPost = (params, request, response) => {
 
 			return notFound(request, response, params.name, true, original);
 		})
-		.catch(failure)
-		.done();
+		.catch(failure);
 };
 
 const viewBlog = (params, request, response) => {
@@ -239,13 +241,16 @@ const viewBlog = (params, request, response) => {
 
 	getJSON(url)
 		.then(success)
-		.catch(isNotFound, () => {
+		.catch(error => {
+			if (!isNotFound(error)) {
+				throw error;
+			}
+
 			const original = `https://${getDomain(params.name)}/`;
 
 			return notFound(request, response, params.name, false, original);
 		})
-		.catch(failure)
-		.done();
+		.catch(failure);
 };
 
 const viewShortened = (params, request, response) => {

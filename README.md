@@ -9,7 +9,7 @@ Tumblr blogs being browsed out of DNS queries and SNI.
 Installation
 ------------
 
-Requires [Node][] 6 or later.
+Requires [Node][] 14 or later.
 
 - Clone the repo:
 
