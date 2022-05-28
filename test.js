@@ -8,6 +8,15 @@ const clean = require('./splash/clean');
 const rewriteHTML = html =>
 	clean.rewriteHTML(html, 'staff')._html;
 
+const rewriteLink = link =>
+	clean.rewriteLinkString(link, 'staff');
+
+describe('link rewriter', it => {
+	it('rewrites href.li links', () => {
+		assert.equal(rewriteLink('https://href.li/?https://example.com/path/to/page?a=1&b=2'), 'https://example.com/path/to/page?a=1&b=2');
+	});
+});
+
 describe('HTML rewriter', it => {
 	it('retains safe HTML', () => {
 		const attempt = html => {

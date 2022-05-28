@@ -91,6 +91,10 @@ const rewriteLink = (uriInfo, baseDomain) => {
 		throw new Error('Base domain is required');
 	}
 
+	if (uriInfo.hostname === 'href.li') {
+		return rewriteLinkString(uriInfo.search.substring(1), baseDomain);
+	}
+
 	if (uriInfo.protocol === null) {
 		if (uriInfo.hostname !== null) {
 			uriInfo.protocol = 'https:';
