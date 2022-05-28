@@ -32,13 +32,7 @@ Requires [Node][] 14 or later.
     [user@host ~/splash] $ PORT=3000 node splash
     ```
 
-- Add a hosts entry for `::1 splash`:
-
-    ```shellsession
-    [user@host ~/splash] $ echo '::1 splash' | sudo tee -a /etc/hosts
-    ```
-
-- Visit <http://splash:3000/blog/staff/>!
+- Visit <http://localhost:3000/blog/staff/>!
 
 
 TODO
