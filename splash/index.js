@@ -88,7 +88,8 @@ const getJSON = url =>
 	new Promise((resolve, reject) => {
 		const request = https.get(url, response => {
 			if (![200, 404].includes(response.statusCode)) {
-				return Promise.reject(new Error(`Unexpected status code: ${response.statusCode}`));
+				reject(new Error(`Unexpected status code: ${response.statusCode}`));
+				return;
 			}
 
 			const bodyParts = [];
